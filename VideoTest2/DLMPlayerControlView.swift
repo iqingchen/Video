@@ -23,9 +23,9 @@ class DLMPlayerControlView: UIView {
     /** 开始播放按钮 */
     var startBtn : UIButton = {
         let btn = UIButton(type: UIButtonType.custom)
-        btn.setImage(UIImage(named: "ZFPlayer_unlock"), for: .normal)
+        btn.setImage(UIImage(named: "ZFPlayer_play"), for: .normal)
         btn.setImage(UIImage(named: "ZFPlayer_pause"), for: .selected)
-        btn.addTarget(self, action: #selector(self.playBtnClick(btn:)), for: .touchUpInside)
+//        btn.addTarget(self, action: #selector(self.playBtnClick(btn:)), for: .touchUpInside)
         return btn
     }()
     /** 当前播放时长label */
@@ -93,7 +93,7 @@ class DLMPlayerControlView: UIView {
     var fullScreen : Bool!
     
     override init(frame: CGRect) {
-        
+        super.init(frame: frame)
     }
     
     required init?(coder aDecoder: NSCoder) {

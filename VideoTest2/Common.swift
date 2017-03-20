@@ -11,10 +11,3 @@ import UIKit
 let kScreenWidth : CGFloat = UIScreen.main.bounds.size.width
 let kScreenHeight : CGFloat = UIScreen.main.bounds.size.height
 
-
-// 图片路径
-//#define ZFPlayerSrcName(file)               [@"ZFPlayer.bundle" stringByAppendingPathComponent:file]
-//
-//#define ZFPlayerFrameworkSrcName(file)      [@"Frameworks/ZFPlayer.framework/ZFPlayer.bundle" stringByAppendingPathComponent:file]
-//
-//#define ZFPlayerImage(file)                 [UIImage imageNamed:ZFPlayerSrcName(file)] ? :[UIImage imageNamed:ZFPlayerFrameworkSrcName(file)]
