@@ -11,3 +11,5 @@ import UIKit
 let kScreenWidth : CGFloat = UIScreen.main.bounds.size.width
 let kScreenHeight : CGFloat = UIScreen.main.bounds.size.height
 
+let DLMPlayerOrientationIsLandscape = UIDeviceOrientationIsLandscape(UIDevice.current.orientation)
+let DLMPlayerOrientationIsPortrait = UIDeviceOrientationIsPortrait(UIDevice.current.orientation)

@@ -52,7 +52,7 @@ class DLMPlayerControlView: UIView {
         return progressView
     }()
     /** 滑杆 */
-    var videoSlider : ASValueTrackingSlider!
+//    var videoSlider : ASValueTrackingSlider!
     /** 全屏按钮 */
     var fullScreenBtn : UIButton = {
         let btn = UIButton(type: UIButtonType.custom)
@@ -68,7 +68,11 @@ class DLMPlayerControlView: UIView {
         return btn
     }()
     /** 系统菊花 */
-    var activity : NVActivityIndicatorView!
+    var activity : NVActivityIndicatorView = {
+        let frame = CGRect(x: 0, y: 0, width: 0, height: 0)
+        let activity = NVActivityIndicatorView(frame: frame)
+        return activity
+    }()
     /** 返回按钮*/
     var backBtn : UIButton = {
         let btn = UIButton(type: UIButtonType.custom)
@@ -209,6 +213,14 @@ extension DLMPlayerControlView {
     fileprivate func setUpUI() {
         addSubViews()
         makeSubViewsConstraints()
+        downLoadBtn.isHidden = true
+        resolutionBtn.isHidden = true
+        // 初始化时重置controlView
+        dlm_playerResetControlView()
+        //添加通知
+        addNotification()
+        listeningRotating()
+        onDeviceOrientationChange()
     }
     fileprivate func addSubViews()  {
         self.addSubview(placeholderImageView)
@@ -218,7 +230,7 @@ extension DLMPlayerControlView {
         bottomImageView.addSubview(startBtn)
         bottomImageView.addSubview(currentTimeLabel)
         bottomImageView.addSubview(progressView)
-        bottomImageView.addSubview(videoSlider)
+//        bottomImageView.addSubview(videoSlider)
         bottomImageView.addSubview(fullScreenBtn)
         bottomImageView.addSubview(totalTimeLabel)
         
@@ -307,12 +319,12 @@ extension DLMPlayerControlView {
             make.trailing.equalTo(totalTimeLabel.snp.leading).offset(-4)
             make.centerY.equalTo(startBtn.snp.centerY)
         }
-        videoSlider.snp.makeConstraints { (make) in
-            make.leading.equalTo(currentTimeLabel.snp.trailing).offset(4)
-            make.trailing.equalTo(totalTimeLabel.snp.leading).offset(-4)
-            make.centerY.equalTo(currentTimeLabel.snp.centerY).offset(-1)
-            make.height.equalTo(30)
-        }
+//        videoSlider.snp.makeConstraints { (make) in
+//            make.leading.equalTo(currentTimeLabel.snp.trailing).offset(4)
+//            make.trailing.equalTo(totalTimeLabel.snp.leading).offset(-4)
+//            make.centerY.equalTo(currentTimeLabel.snp.centerY).offset(-1)
+//            make.height.equalTo(30)
+//        }
         lockBtn.snp.makeConstraints { (make) in
             make.leading.equalTo(self.snp.leading).offset(15)
             make.centerY.equalTo(self.snp.centerY)
@@ -324,6 +336,10 @@ extension DLMPlayerControlView {
         playeBtn.snp.makeConstraints { (make) in
             make.width.height.equalTo(50)
             make.center.equalTo(self)
+        }
+        activity.snp.makeConstraints { (make) in
+            make.center.equalTo(self)
+            make.width.height.equalTo(45)
         }
 //        
 //        [self.activity mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -359,6 +375,65 @@ extension DLMPlayerControlView {
         make.leading.trailing.equalTo(0)
         make.bottom.equalTo(0)
         }
+    }
+    fileprivate func dlm_playerResetControlView() {
+        activity.stopAnimating()
+        
+//        self.videoSlider.value           = 0
+        self.bottomProgressView.progress = 0
+        self.progressView.progress       = 0
+        self.currentTimeLabel.text       = "00:00"
+        self.totalTimeLabel.text         = "00:00"
+        self.fastView.isHidden             = true
+        self.repeatBtn.isHidden            = true
+        self.playeBtn.isHidden             = true
+        self.resolutionView.isHidden       = true
+        self.failBtn.isHidden              = true
+        self.backgroundColor             = UIColor.clear
+        self.downLoadBtn.isEnabled         = true
+        self.shrink                      = false
+        self.showing                     = false
+        self.playeEnd                    = false
+        self.lockBtn.isHidden              = !self.fullScreen;
+        self.failBtn.isHidden              = true
+        self.placeholderImageView.alpha  = 1;
+    }
+    fileprivate func addNotification() {
+        // app退到后台
+        //        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidEnterBackground) name:UIApplicationWillResignActiveNotification object:nil];
+        // app进入前台
+        //        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidEnterPlayground) name:UIApplicationDidBecomeActiveNotification object:nil];
+    }
+    /**
+     *  监听设备旋转通知
+     */
+    func listeningRotating() {
+        UIDevice.current.beginGeneratingDeviceOrientationNotifications()
+        NotificationCenter.default.addObserver(self, selector: #selector(self.onDeviceOrientationChange), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
+    }
+    /**
+     *  屏幕方向发生变化会调用这里
+     */
+    func onDeviceOrientationChange() {
+//        if (ZFPlayerShared.isLockScreen) { return; }
+        self.lockBtn.isHidden = !self.fullScreen
+        self.fullScreenBtn.isSelected = self.fullScreen
+        let orientation = UIDevice.current.orientation
+        if orientation == .faceUp || orientation == .faceDown || orientation == .unknown || orientation == .portraitUpsideDown {
+            return
+        }
+        if DLMPlayerOrientationIsLandscape {
+            setOrientationLandscapeConstraint()
+        }else {
+            setOrientationPortraitConstraint()
+        }
+        self.layoutIfNeeded()
+    }
+    func setOrientationLandscapeConstraint() {
+    
+    }
+    func setOrientationPortraitConstraint() {
+        
     }
 }
 
