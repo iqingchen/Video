@@ -11,7 +11,16 @@ import NVActivityIndicatorView
 
 class ViewController: UIViewController {
 
+    lazy var playerView : DLMPlayerView = {
+        let frame = CGRect(x: 0, y: 0, width: 0, height: 0)
+        let playerV = DLMPlayerView(frame: frame)
+        return playerV
+    }()
+    
     override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        //加载视频播放器
         
     }
 }
