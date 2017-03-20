@@ -1,5 +1,6 @@
+
 //
-//  ASValueTrackingSlider.swift
+//  ASValuePopUpView.swift
 //  VideoTest2
 //
 //  Created by zhang on 2017/3/20.
@@ -8,6 +9,7 @@
 
 import UIKit
 
-class ASValueTrackingSlider: UISlider {
+class ASValuePopUpView: UIView {
+
     
 }

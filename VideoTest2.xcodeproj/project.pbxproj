@@ -56,6 +56,7 @@
 		1F9FE8E41E7FA1E70019C772 /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F9FE8E31E7FA1E70019C772 /* Common.swift */; };
 		1F9FE8E61E7FA34A0019C772 /* DLMPlayerControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F9FE8E51E7FA34A0019C772 /* DLMPlayerControlView.swift */; };
 		1F9FE8E81E7FA4790019C772 /* ASValueTrackingSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F9FE8E71E7FA4790019C772 /* ASValueTrackingSlider.swift */; };
+		1F9FE9C21E7FC1A30019C772 /* ASValuePopUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F9FE9C11E7FC1A30019C772 /* ASValuePopUpView.swift */; };
 		6D27338B9C61798AAE0B37B7 /* Pods_VideoTest2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BD80BFCD085DD3513C1E0D92 /* Pods_VideoTest2.framework */; };
 /* End PBXBuildFile section */
 
@@ -132,6 +133,7 @@
 		1F9FE8E31E7FA1E70019C772 /* Common.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Common.swift; sourceTree = "<group>"; };
 		1F9FE8E51E7FA34A0019C772 /* DLMPlayerControlView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DLMPlayerControlView.swift; sourceTree = "<group>"; };
 		1F9FE8E71E7FA4790019C772 /* ASValueTrackingSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ASValueTrackingSlider.swift; sourceTree = "<group>"; };
+		1F9FE9C11E7FC1A30019C772 /* ASValuePopUpView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ASValuePopUpView.swift; sourceTree = "<group>"; };
 		29D4E186EDB8296C1D05F763 /* Pods-VideoTest2.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoTest2.release.xcconfig"; path = "Pods/Target Support Files/Pods-VideoTest2/Pods-VideoTest2.release.xcconfig"; sourceTree = "<group>"; };
 		4288AD777495501E9C9CCCCC /* Pods-VideoTest2.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoTest2.debug.xcconfig"; path = "Pods/Target Support Files/Pods-VideoTest2/Pods-VideoTest2.debug.xcconfig"; sourceTree = "<group>"; };
 		BD80BFCD085DD3513C1E0D92 /* Pods_VideoTest2.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VideoTest2.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -192,6 +194,7 @@
 				1F9FE8661E7F99410019C772 /* ViewController.swift */,
 				1F9FE8E51E7FA34A0019C772 /* DLMPlayerControlView.swift */,
 				1F9FE8E71E7FA4790019C772 /* ASValueTrackingSlider.swift */,
+				1F9FE9C11E7FC1A30019C772 /* ASValuePopUpView.swift */,
 				1F9FE8E11E7F9F1F0019C772 /* DLMBrightnessView.swift */,
 				1F9FE8E31E7FA1E70019C772 /* Common.swift */,
 				1F9FE8681E7F99410019C772 /* Main.storyboard */,
@@ -508,6 +511,7 @@
 			files = (
 				1F9FE8E41E7FA1E70019C772 /* Common.swift in Sources */,
 				1F9FE8E81E7FA4790019C772 /* ASValueTrackingSlider.swift in Sources */,
+				1F9FE9C21E7FC1A30019C772 /* ASValuePopUpView.swift in Sources */,
 				1F9FE8671E7F99410019C772 /* ViewController.swift in Sources */,
 				1F9FE8E61E7FA34A0019C772 /* DLMPlayerControlView.swift in Sources */,
 				1F9FE8651E7F99410019C772 /* AppDelegate.swift in Sources */,

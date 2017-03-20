@@ -8,6 +8,7 @@
 
 import UIKit
 import NVActivityIndicatorView
+import SnapKit
 
 let DLMPlayerAnimationTimeInterval : CGFloat = 7.0
 let DLMPlayerControlBarAutoFadeOutTimeInterval : CGFloat = 0.35
@@ -108,7 +109,12 @@ class DLMPlayerControlView: UIView {
         return btn
     }()
     /** 切换分辨率按钮 */
-    var resolutionBtn : UIButton!
+    var resolutionBtn : UIButton = {
+        let btn = UIButton(type: UIButtonType.custom)
+        btn.titleLabel?.font = UIFont.systemFont(ofSize: 12)
+        btn.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.7)
+        return btn
+    }()
     /** 分辨率的View */
     var resolutionView : UIView!
     /** 播放按钮 */
@@ -155,12 +161,7 @@ class DLMPlayerControlView: UIView {
         return fastImageV
     }()
     /** 当前选中的分辨率btn按钮 */
-    var resoultionCurrentBtn : UIButton = {
-        let btn = UIButton(type: UIButtonType.custom)
-        btn.titleLabel?.font = UIFont.systemFont(ofSize: 12)
-        btn.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.7)
-        return btn
-    }()
+    var resoultionCurrentBtn : UIButton!
     /** 占位图 */
     var placeholderImageView : UIImageView = {
         let placeholderImageV = UIImageView()
@@ -192,12 +193,177 @@ class DLMPlayerControlView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        setUpUI()
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
+    
+    
+}
+
+//MARK: - 设置UI
+extension DLMPlayerControlView {
+    fileprivate func setUpUI() {
+        addSubViews()
+        makeSubViewsConstraints()
+    }
+    fileprivate func addSubViews()  {
+        self.addSubview(placeholderImageView)
+        self.addSubview(topImageView)
+        self.addSubview(bottomImageView)
+        
+        bottomImageView.addSubview(startBtn)
+        bottomImageView.addSubview(currentTimeLabel)
+        bottomImageView.addSubview(progressView)
+        bottomImageView.addSubview(videoSlider)
+        bottomImageView.addSubview(fullScreenBtn)
+        bottomImageView.addSubview(totalTimeLabel)
+        
+        topImageView.addSubview(downLoadBtn)
+        self.addSubview(lockBtn)
+        topImageView.addSubview(backBtn)
+//        self.addSubview(activity)
+        self.addSubview(repeatBtn)
+        self.addSubview(playeBtn)
+        self.addSubview(failBtn)
+        
+        self.addSubview(fastView)
+        fastView.addSubview(fastImageView)
+        fastView.addSubview(fastTimeLabel)
+        fastView.addSubview(fastProgressView)
+        
+        topImageView.addSubview(resolutionBtn)
+        topImageView.addSubview(titleLabel)
+        self.addSubview(closeBtn)
+        self.addSubview(bottomProgressView)
+    }
+    fileprivate func makeSubViewsConstraints() {
+        self.layoutIfNeeded()
+        placeholderImageView.snp.makeConstraints { (make) in
+            make.edges.equalTo(UIEdgeInsets.zero)
+        }
+        
+        closeBtn.snp.makeConstraints { (make) in
+            make.trailing.equalTo(self.snp.trailing).offset(7)
+            make.top.equalTo(self).offset(-7)
+            make.width.height.equalTo(20)
+        }
+        topImageView.snp.makeConstraints { (make) in
+            make.leading.trailing.equalTo(self)
+            make.top.equalTo(self.snp.top).offset(0)
+            make.height.equalTo(50)
+        }
+        backBtn.snp.makeConstraints { (make) in
+            make.leading.equalTo(self.topImageView.snp.leading).offset(10)
+            make.top.equalTo(self.topImageView.snp.top).offset(3)
+            make.width.height.equalTo(40)
+        }
+        downLoadBtn.snp.makeConstraints { (make) in
+            make.width.equalTo(40)
+            make.height.equalTo(25)
+            make.trailing.equalTo(topImageView.snp.trailing).offset(-10)
+            make.centerY.equalTo(backBtn.snp.centerY)
+        }
+        resolutionBtn.snp.makeConstraints { (make) in
+            make.width.equalTo(40)
+            make.height.equalTo(25)
+            make.trailing.equalTo(downLoadBtn.snp.leading).offset(-10)
+            make.centerY.equalTo(resolutionBtn.snp.centerY)
+        }
+        titleLabel.snp.makeConstraints { (make) in
+            make.leading.equalTo(self.backBtn.snp.trailing).offset(5)
+            make.centerY.equalTo(backBtn.snp.centerY)
+            make.trailing.equalTo(resolutionBtn.snp.leading).offset(-10)
+        }
+        bottomImageView.snp.makeConstraints { (make) in
+            make.leading.trailing.bottom.equalTo(0)
+            make.height.equalTo(50)
+        }
+        startBtn.snp.makeConstraints { (make) in
+            make.leading.equalTo(bottomImageView.snp.leading).offset(5)
+            make.bottom.equalTo(bottomImageView.snp.bottom).offset(-5)
+            make.width.height.equalTo(30)
+        }
+        currentTimeLabel.snp.makeConstraints { (make) in
+            make.leading.equalTo(startBtn.snp.trailing).offset(-3)
+            make.centerY.equalTo(startBtn.snp.centerY)
+            make.width.equalTo(43)
+        }
+        fullScreenBtn.snp.makeConstraints { (make) in
+            make.width.height.equalTo(30)
+            make.trailing.equalTo(bottomImageView.snp.trailing).offset(-5)
+            make.centerY.equalTo(startBtn.snp.centerY)
+        }
+        totalTimeLabel.snp.makeConstraints { (make) in
+            make.trailing.equalTo(fullScreenBtn.snp.leading).offset(3)
+            make.centerY.equalTo(startBtn.snp.centerY)
+            make.width.equalTo(43)
+        }
+        progressView.snp.makeConstraints { (make) in
+            make.leading.equalTo(currentTimeLabel.snp.leading).offset(4)
+            make.trailing.equalTo(totalTimeLabel.snp.leading).offset(-4)
+            make.centerY.equalTo(startBtn.snp.centerY)
+        }
+        videoSlider.snp.makeConstraints { (make) in
+            make.leading.equalTo(currentTimeLabel.snp.trailing).offset(4)
+            make.trailing.equalTo(totalTimeLabel.snp.leading).offset(-4)
+            make.centerY.equalTo(currentTimeLabel.snp.centerY).offset(-1)
+            make.height.equalTo(30)
+        }
+        lockBtn.snp.makeConstraints { (make) in
+            make.leading.equalTo(self.snp.leading).offset(15)
+            make.centerY.equalTo(self.snp.centerY)
+            make.width.height.equalTo(32)
+        }
+        repeatBtn.snp.makeConstraints { (make) in
+            make.center.equalTo(self)
+        }
+        playeBtn.snp.makeConstraints { (make) in
+            make.width.height.equalTo(50)
+            make.center.equalTo(self)
+        }
+//        
+//        [self.activity mas_makeConstraints:^(MASConstraintMaker *make) {
+//            make.center.equalTo(self);
+//            make.width.with.height.mas_equalTo(45);
+//            }];
+        failBtn.snp.makeConstraints { (make) in
+            make.center.equalTo(self)
+            make.width.equalTo(130)
+            make.height.equalTo(33)
+        }
+        fastView.snp.makeConstraints { (make) in
+            make.width.equalTo(125)
+            make.height.equalTo(80)
+            make.center.equalTo(self)
+        }
+        fastImageView.snp.makeConstraints { (make) in
+            make.width.equalTo(32)
+            make.height.equalTo(32)
+            make.top.equalTo(5)
+            make.centerX.equalTo(fastView.snp.centerX)
+        }
+        fastTimeLabel.snp.makeConstraints { (make) in
+            make.leading.width.trailing.equalTo(0)
+            make.top.equalTo(fastImageView.snp.bottom).offset(2)
+        }
+        fastProgressView.snp.makeConstraints { (make) in
+            make.leading.equalTo(12)
+            make.trailing.equalTo(-12)
+            make.top.equalTo(fastTimeLabel.snp.bottom).offset(10)
+        }
+    bottomProgressView.snp.makeConstraints { (make) in
+        make.leading.trailing.equalTo(0)
+        make.bottom.equalTo(0)
+        }
+    }
+}
+
+//MARK: - 按钮事件
+extension DLMPlayerControlView {
     func setBtnAction() {
         startBtn.addTarget(self, action: #selector(self.playBtnClick(btn:)), for: .touchUpInside)
         backBtn.addTarget(self, action: #selector(self.backBtnClick(btn:)), for: .touchUpInside)
@@ -211,10 +377,6 @@ class DLMPlayerControlView: UIView {
         failBtn.addTarget(self, action: #selector(self.failBtnClick(btn:)), for: .touchUpInside)
     }
     
-}
-
-//MARK: - 按钮事件
-extension DLMPlayerControlView {
     @objc func playBtnClick(btn: UIButton) {
         
     }
