@@ -8,7 +8,7 @@
 
 import UIKit
 
-class PhotoAblumList: NSObject {
+class DLMPlayerModel: NSObject {
     /** 视频标题 */
     var title : String = ""
     /** 视频URL */

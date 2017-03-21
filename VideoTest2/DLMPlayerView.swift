@@ -141,9 +141,9 @@ extension DLMPlayerView {
 
 //MARK: - 暴露给外界的方法
 extension DLMPlayerView {
-//    func <#name#>(<#parameters#>) -> <#return type#> {
-//        <#function body#>
-//    }
+    func playerControlView(controlView: UIView, playerModel: DLM) {
+        
+    }
     
     
     
