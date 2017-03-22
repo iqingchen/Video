@@ -10,19 +10,22 @@ import UIKit
 import NVActivityIndicatorView
 
 class ViewController: UIViewController {
+    
+    @IBOutlet weak var playerFatherView: UIView!
+    
     lazy var playerModel : DLMPlayerModel = {
         let playerM  = DLMPlayerModel()
         playerM.title = "这里设置视频标题"
-        playerM.videoURL = NSURL(string: "")
-        playerM.placeholderImage = UIImage(named: "")
-        playerM.fatherView = self.view
+        playerM.videoURL = NSURL(string: "http://baobab.wdjcdn.com/1456231710844S(24).mp4")
+        playerM.placeholderImage = UIImage(named: "1.png")
+        playerM.fatherView = self.playerFatherView
         return playerM
     }()
     
     lazy var playerView : DLMPlayerView = {
-        let frame = CGRect(x: 0, y: 0, width: 0, height: 0)
+        let frame = self.playerFatherView.frame
         let playerV = DLMPlayerView(frame: frame)
-        playerV.playerControlView(controlView: nil, playerModel: self.playerModel)
+        playerV.playerControlView(frame: frame, playerModel: self.playerModel)
         return playerV
     }()
     

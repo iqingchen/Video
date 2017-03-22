@@ -61,6 +61,7 @@
 		1F9FE9C61E7FF45B0019C772 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F9FE9C51E7FF45B0019C772 /* MediaPlayer.framework */; };
 		1F9FE9C81E8002140019C772 /* DLMPlayerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F9FE9C71E8002140019C772 /* DLMPlayerModel.swift */; };
 		1F9FE9D31E80F4830019C772 /* DLMPlayerControlView+Delegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F9FE9D21E80F4830019C772 /* DLMPlayerControlView+Delegate.swift */; };
+		1F9FE9EA1E8245E00019C772 /* 1.png in Resources */ = {isa = PBXBuildFile; fileRef = 1F9FE9E91E8245DF0019C772 /* 1.png */; };
 		6D27338B9C61798AAE0B37B7 /* Pods_VideoTest2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BD80BFCD085DD3513C1E0D92 /* Pods_VideoTest2.framework */; };
 /* End PBXBuildFile section */
 
@@ -142,6 +143,7 @@
 		1F9FE9C51E7FF45B0019C772 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		1F9FE9C71E8002140019C772 /* DLMPlayerModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DLMPlayerModel.swift; sourceTree = "<group>"; };
 		1F9FE9D21E80F4830019C772 /* DLMPlayerControlView+Delegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "DLMPlayerControlView+Delegate.swift"; sourceTree = "<group>"; };
+		1F9FE9E91E8245DF0019C772 /* 1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 1.png; sourceTree = "<group>"; };
 		29D4E186EDB8296C1D05F763 /* Pods-VideoTest2.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoTest2.release.xcconfig"; path = "Pods/Target Support Files/Pods-VideoTest2/Pods-VideoTest2.release.xcconfig"; sourceTree = "<group>"; };
 		4288AD777495501E9C9CCCCC /* Pods-VideoTest2.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoTest2.debug.xcconfig"; path = "Pods/Target Support Files/Pods-VideoTest2/Pods-VideoTest2.debug.xcconfig"; sourceTree = "<group>"; };
 		BD80BFCD085DD3513C1E0D92 /* Pods_VideoTest2.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VideoTest2.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -209,6 +211,7 @@
 				1F9FE9C11E7FC1A30019C772 /* ASValuePopUpView.swift */,
 				1F9FE8E11E7F9F1F0019C772 /* DLMBrightnessView.swift */,
 				1F9FE8E31E7FA1E70019C772 /* Common.swift */,
+				1F9FE9E91E8245DF0019C772 /* 1.png */,
 				1F9FE9CF1E80F3150019C772 /* Category */,
 				1F9FE8681E7F99410019C772 /* Main.storyboard */,
 				1F9FE86B1E7F99410019C772 /* Assets.xcassets */,
@@ -444,6 +447,7 @@
 				1F9FE8C41E7F9D7A0019C772 /* ZFPlayer_fast_backward@3x.png in Resources */,
 				1F9FE8C01E7F9D7A0019C772 /* ZFPlayer_close@3x.png in Resources */,
 				1F9FE8D51E7F9D7A0019C772 /* ZFPlayer_repeat_video.png in Resources */,
+				1F9FE9EA1E8245E00019C772 /* 1.png in Resources */,
 				1F9FE8BC1E7F9D7A0019C772 /* ZFPlayer_bottom_shadow.png in Resources */,
 				1F9FE8D81E7F9D7A0019C772 /* ZFPlayer_shrinkscreen.png in Resources */,
 				1F9FE8DB1E7F9D7A0019C772 /* ZFPlayer_slider.png in Resources */,

@@ -338,11 +338,11 @@ extension DLMPlayerControlView {
             make.width.height.equalTo(50)
             make.center.equalTo(self)
         }
-        activity.snp.makeConstraints { (make) in
-            make.center.equalTo(self)
-            make.width.height.equalTo(45)
-        }
-//        
+//        activity.snp.makeConstraints { (make) in
+//            make.center.equalTo(self)
+//            make.width.height.equalTo(45)
+//        }
+//
 //        [self.activity mas_makeConstraints:^(MASConstraintMaker *make) {
 //            make.center.equalTo(self);
 //            make.width.with.height.mas_equalTo(45);
@@ -372,10 +372,10 @@ extension DLMPlayerControlView {
             make.trailing.equalTo(-12)
             make.top.equalTo(fastTimeLabel.snp.bottom).offset(10)
         }
-    bottomProgressView.snp.makeConstraints { (make) in
-        make.leading.trailing.equalTo(0)
-        make.bottom.equalTo(0)
-        }
+        bottomProgressView.snp.makeConstraints { (make) in
+            make.leading.trailing.equalTo(0)
+            make.bottom.equalTo(0)
+            }
     }
     fileprivate func dlm_playerResetControlView() {
         activity.stopAnimating()
@@ -388,14 +388,14 @@ extension DLMPlayerControlView {
         self.fastView.isHidden             = true
         self.repeatBtn.isHidden            = true
         self.playeBtn.isHidden             = true
-        self.resolutionView.isHidden       = true
+//        self.resolutionView.isHidden       = true
         self.failBtn.isHidden              = true
         self.backgroundColor             = UIColor.clear
         self.downLoadBtn.isEnabled         = true
         self.isShrink                      = false
         self.isShowing                     = false
         self.playeEnd                    = false
-        self.lockBtn.isHidden              = !self.isFullScreen;
+//        self.lockBtn.isHidden              = !self.isFullScreen;
         self.failBtn.isHidden              = true
         self.placeholderImageView.alpha  = 1;
     }
@@ -417,8 +417,8 @@ extension DLMPlayerControlView {
      */
     func onDeviceOrientationChange() {
 //        if (ZFPlayerShared.isLockScreen) { return; }
-        self.lockBtn.isHidden = !self.isFullScreen
-        self.fullScreenBtn.isSelected = self.isFullScreen
+//        self.lockBtn.isHidden = !self.isFullScreen
+//        self.fullScreenBtn.isSelected = self.isFullScreen
         let orientation = UIDevice.current.orientation
         if orientation == .faceUp || orientation == .faceDown || orientation == .unknown || orientation == .portraitUpsideDown {
             return
@@ -495,9 +495,9 @@ extension DLMPlayerControlView {
         // 隐藏resolutionView
         resolutionBtn.isSelected = true
         self.resolutionBtnClick(btn: self.resolutionBtn)
-        if isFullScreen && !playeEnd && !isShrink {
+//        if isFullScreen && !playeEnd && !isShrink {
 //            ZFPlayerShared.isStatusBarHidden = YES;
-        }
+//        }
     }
     fileprivate func showControlView() {
         if self.lockBtn.isSelected {

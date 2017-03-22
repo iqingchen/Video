@@ -30,21 +30,7 @@ class DLMPlayerView: UIView {
     //MARK: - 外部属性
     /** 视频model */
     /** 设置playerLayer的填充模式 */
-    var playerLayerGravity : DLMPlayerLayerGravity?{
-        didSet(newLayerGravity){
-            playerLayerGravity = newLayerGravity
-            if newLayerGravity == DLMPlayerLayerGravity.Resize {
-                self.playerLayer?.videoGravity = AVLayerVideoGravityResize
-                self.videoGravity = AVLayerVideoGravityResize
-            }else if(newLayerGravity == DLMPlayerLayerGravity.Aspect){
-                self.playerLayer?.videoGravity = AVLayerVideoGravityResizeAspect
-                self.videoGravity = AVLayerVideoGravityResizeAspect
-            }else if(newLayerGravity == DLMPlayerLayerGravity.AspectFill){
-                self.playerLayer?.videoGravity = AVLayerVideoGravityResizeAspectFill
-                self.videoGravity = AVLayerVideoGravityResizeAspectFill
-            }
-        }
-    }
+    var playerLayerGravity : DLMPlayerLayerGravity?
     /** 是否有下载功能(默认是关闭) */
     var hasDownload : Bool!
     /** 是否开启预览图 */
@@ -54,21 +40,7 @@ class DLMPlayerView: UIView {
     /** 是否被用户暂停 */
     var isPauseByUser : Bool!
     /** 播发器的几种状态 */
-    var state : DLMPlayerState?{
-        //设置播放的状态
-        didSet(newState){
-            state = newState
-            // 控制菊花显示、隐藏
-            self.controlView?.dlm_playerActivity(animated: newState == DLMPlayerState.Buffering)
-            if newState == DLMPlayerState.Playing || newState == DLMPlayerState.Buffering {
-                // 隐藏占位图
-                self.controlView?.dlm_playerItemPlaying()
-            }else if newState == DLMPlayerState.Failed {
-                let error = self.playerItem?.error
-                self.controlView?.dlm_playerItemStatusFailed(error: error!)
-            }
-        }
-    }
+    var state : DLMPlayerState?
     /** 静音（默认为NO）*/
     var mute : Bool!
     /** 当cell划出屏幕的时候停止播放（默认为NO） */
@@ -79,41 +51,14 @@ class DLMPlayerView: UIView {
     //MARK: - 私有属性
     /** 播放属性 */
     var player : AVPlayer!
-    var playerItem : AVPlayerItem?{
-        //根据playerItem，来添加移除观察者
-        didSet(newPlayerItem){
-            if newPlayerItem == playerItem {
-                return
-            }
-            if let item = playerItem {
-                NotificationCenter.default.removeObserver(self, name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: item)
-                item.removeObserver(self, forKeyPath: "status")
-                item.removeObserver(self, forKeyPath: "loadedTimeRanges")
-                item.removeObserver(self, forKeyPath: "playbackBufferEmpty")
-                item.removeObserver(self, forKeyPath: "playbackLikelyToKeepUp")
-            }
-            playerItem = newPlayerItem
-            if let item = playerItem {
-                NotificationCenter.default.addObserver(self, selector: #selector(self.moviePlayDidEnd(notification:)), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: playerItem)
-                item.addObserver(self, forKeyPath: "status", options: NSKeyValueObservingOptions.new, context: nil)
-                item.addObserver(self, forKeyPath: "loadedTimeRanges", options: NSKeyValueObservingOptions.new, context: nil)
-                // 缓冲区空了，需要等待数据
-                item.addObserver(self, forKeyPath: "playbackBufferEmpty", options: NSKeyValueObservingOptions.new, context: nil)
-                // 缓冲区有足够数据可以播放了
-                item.addObserver(self, forKeyPath: "playbackLikelyToKeepUp", options: NSKeyValueObservingOptions.new, context: nil)
-            }
-        }
-    }
+    var playerItem : AVPlayerItem?
     var urlAsset : AVURLAsset!
     lazy var imageGenerator : AVAssetImageGenerator = {
         let imageGeneratorT = AVAssetImageGenerator(asset: self.urlAsset)
         return imageGeneratorT
     }()
     /** playerLayer */
-    var playerLayer : AVPlayerLayer?{
-        didSet{
-        }
-    }
+    var playerLayer : AVPlayerLayer?
 
     var timeObserve : Any?
     /** 滑杆 */
@@ -177,55 +122,10 @@ class DLMPlayerView: UIView {
 //    /** 是否正在拖拽 */
 //    @property (nonatomic, assign) BOOL                   isDragged;
 
-    var controlView : DLMPlayerControlView?{
-        didSet(newValue){
-            if !(newValue != nil) {
-                return
-            }
-            controlView = newValue
-//            controlView.delegate = self
-            self.layoutIfNeeded()
-            self.addSubview(controlView!)
-            controlView?.snp.makeConstraints({ (make) in
-                make.edges.equalTo(UIEdgeInsets.zero)
-            })
-        }
-    }
-    var playerModel : DLMPlayerModel? {
-        didSet(newValue){
-            playerModel = newValue
-//            NSCAssert(playerModel.fatherView, @"请指定playerView的faterView");
-            
-            if ((playerModel?.seekTime) != nil) {
-                self.seekTime = playerModel?.seekTime
-            }
-//            [self.controlView zf_playerModel:playerModel];
-            // 分辨率
-            if ((playerModel?.resolutionDic) != nil) {
-                self.resolutionDic = playerModel?.resolutionDic
-            }
-//            
-//            if (playerModel.tableView && playerModel.indexPath && playerModel.videoURL) {
-//                [self cellVideoWithTableView:playerModel.tableView AtIndexPath:playerModel.indexPath];
-//            }
-//            [self addPlayerToFatherView:playerModel.fatherView];
-//            self.videoURL = playerModel.videoURL;
-        }
-    }
+    var controlView : DLMPlayerControlView?
+    var playerModel : DLMPlayerModel?
     var seekTime : Int?
-    var videoURL : URL?{
-        didSet(newVideoURL){
-            videoURL = newVideoURL
-            // 每次加载视频URL都设置重播为NO
-            self.repeatToPlay = false
-            self.playDidEnd   = false
-            // 添加通知
-            self.addNotifications()
-            self.isPauseByUser = true
-            // 添加手势
-            self.createGesture()
-        }
-    }
+    var videoURL : URL?
     var resolutionDic : [String:String]?{
         didSet(newResolutionDic){
             resolutionDic = newResolutionDic
@@ -288,8 +188,110 @@ extension DLMPlayerView {
     }
 }
 
+//MARK: - 设置方法
+extension DLMPlayerView {
+    fileprivate func setNewLayerGravity(newLayerGravity: DLMPlayerLayerGravity) {
+        playerLayerGravity = newLayerGravity
+        if newLayerGravity == DLMPlayerLayerGravity.Resize {
+            self.playerLayer?.videoGravity = AVLayerVideoGravityResize
+            self.videoGravity = AVLayerVideoGravityResize
+        }else if(newLayerGravity == DLMPlayerLayerGravity.Aspect){
+            self.playerLayer?.videoGravity = AVLayerVideoGravityResizeAspect
+            self.videoGravity = AVLayerVideoGravityResizeAspect
+        }else if(newLayerGravity == DLMPlayerLayerGravity.AspectFill){
+            self.playerLayer?.videoGravity = AVLayerVideoGravityResizeAspectFill
+            self.videoGravity = AVLayerVideoGravityResizeAspectFill
+        }
+    }
+    //设置播放状态
+    fileprivate func setNewState(newState: DLMPlayerState) {
+        state = newState
+        // 控制菊花显示、隐藏
+        self.controlView?.dlm_playerActivity(animated: newState == DLMPlayerState.Buffering)
+        if newState == DLMPlayerState.Playing || newState == DLMPlayerState.Buffering {
+            // 隐藏占位图
+            self.controlView?.dlm_playerItemPlaying()
+        }else if newState == DLMPlayerState.Failed {
+            let error = self.playerItem?.error
+            self.controlView?.dlm_playerItemStatusFailed(error: error!)
+        }
+    }
+    fileprivate func setNewPlayerItem(newPlayerItem: AVPlayerItem) {
+        //根据playerItem，来添加移除观察者
+        if let item = playerItem {
+            NotificationCenter.default.removeObserver(self, name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: item)
+            item.removeObserver(self, forKeyPath: "status")
+            item.removeObserver(self, forKeyPath: "loadedTimeRanges")
+            item.removeObserver(self, forKeyPath: "playbackBufferEmpty")
+            item.removeObserver(self, forKeyPath: "playbackLikelyToKeepUp")
+        }
+        playerItem = newPlayerItem
+        if let item = playerItem {
+            NotificationCenter.default.addObserver(self, selector: #selector(self.moviePlayDidEnd(notification:)), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: playerItem)
+            item.addObserver(self, forKeyPath: "status", options: NSKeyValueObservingOptions.new, context: nil)
+            item.addObserver(self, forKeyPath: "loadedTimeRanges", options: NSKeyValueObservingOptions.new, context: nil)
+            // 缓冲区空了，需要等待数据
+            item.addObserver(self, forKeyPath: "playbackBufferEmpty", options: NSKeyValueObservingOptions.new, context: nil)
+            // 缓冲区有足够数据可以播放了
+            item.addObserver(self, forKeyPath: "playbackLikelyToKeepUp", options: NSKeyValueObservingOptions.new, context: nil)
+        }
+    }
+    fileprivate func setNewControlView(newControlView: DLMPlayerControlView){
+            controlView = newControlView
+            //            controlView.delegate = self
+            self.layoutIfNeeded()
+            self.addSubview(newControlView)
+            controlView?.snp.makeConstraints({ (make) in
+                make.edges.equalTo(UIEdgeInsets.zero)
+            })
+    }
+    fileprivate func setNewPlayerModel(newPlayerModel: DLMPlayerModel) {
+        playerModel = newPlayerModel
+        //            NSCAssert(playerModel.fatherView, @"请指定playerView的faterView");
+        
+        if ((playerModel?.seekTime) != nil) {
+            self.seekTime = playerModel?.seekTime
+        }
+        //            [self.controlView zf_playerModel:playerModel];
+        // 分辨率
+        if ((playerModel?.resolutionDic) != nil) {
+            self.resolutionDic = playerModel?.resolutionDic
+        }
+        //
+        //            if (playerModel.tableView && playerModel.indexPath && playerModel.videoURL) {
+        //                [self cellVideoWithTableView:playerModel.tableView AtIndexPath:playerModel.indexPath];
+        //            }
+        self.addPlayerToFatherView(view: newPlayerModel.fatherView)
+        self.setNewVideoURL(newVideoURL: (playerModel?.videoURL)! as URL)
+        //            [self addPlayerToFatherView:playerModel.fatherView];
+        //            self.videoURL = playerModel.videoURL;
+    }
+    func setNewVideoURL(newVideoURL: URL) {
+        videoURL = newVideoURL
+        // 每次加载视频URL都设置重播为NO
+        self.repeatToPlay = false
+        self.playDidEnd   = false
+        // 添加通知
+        self.addNotifications()
+        self.isPauseByUser = true
+        // 添加手势
+        self.createGesture()
+    }
+}
+
 //MARK: - 一些私有方法
 extension DLMPlayerView {
+    /**  player添加到fatherView上*/
+    fileprivate func addPlayerToFatherView(view: UIView) {
+        // 这里应该添加判断，因为view有可能为空，当view为空时[view addSubview:self]会crash
+        self.removeFromSuperview()
+        view.addSubview(self)
+        self.snp.makeConstraints({ (make) in
+            make.edges.equalTo(UIEdgeInsets.zero)
+        })
+        
+    }
+    
     //创建手势
     fileprivate func createGesture() {
 //
@@ -404,38 +406,30 @@ extension DLMPlayerView {
 
         }
     }
+    
+    //kvo
+    
 
 }
 
 //MARK: - 暴露给外界的方法
 extension DLMPlayerView {
-    /**
-     * 指定播放的控制层和模型
-     * 控制层传nil，默认使用ZFPlayerControlView(如自定义可传自定义的控制层)
-     */
-    func playerControlView(controlView: DLMPlayerControlView?, playerModel: DLMPlayerModel) {
-        if controlView == nil {
-            //指定默认控制层
-            let frame = CGRect(x: 0, y: 0, width: 0, height: 0)
-            let defaultControlView = DLMPlayerControlView(frame: frame)
-            self.controlView = defaultControlView
-        }else {
-            self.controlView = controlView!
-        }
-        self.playerModel = playerModel
+    //指定播放的控制层和模型
+    //控制层传nil，默认使用ZFPlayerControlView(如自定义可传自定义的控制层)
+    func playerControlView(frame: CGRect, playerModel: DLMPlayerModel) {
+        //指定默认控制层
+        let defaultControlView = DLMPlayerControlView(frame: frame)
+        self.setNewControlView(newControlView: defaultControlView)
+        self.setNewPlayerModel(newPlayerModel: playerModel)
     }
-    /**
-     * 使用自带的控制层时候可使用此API
-     */
+    //使用自带的控制层时候可使用此API
     func playerModel(playModel: DLMPlayerModel) {
         // 指定默认控制层
         let defaultControlView = DLMPlayerControlView()
         self.controlView = defaultControlView
         self.playerModel = playModel
     }
-    /**
-     *  自动播放，默认不自动播放
-     */
+    //自动播放，默认不自动播放
     func autoPlayTheVideo() {
         configDLMPlayer()
     }
