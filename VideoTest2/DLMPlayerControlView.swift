@@ -48,7 +48,7 @@ class DLMPlayerControlView: UIView {
     /** 缓冲进度条 */
     var progressView : UIProgressView = {
         let progressView = UIProgressView(progressViewStyle: .default)
-        progressView.progressTintColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.5)
+        progressView.progressTintColor = RGBA(r: 1, g: 1, b: 1, a: 0.5)
         progressView.trackTintColor = UIColor.clear
         return progressView
     }()
@@ -117,7 +117,7 @@ class DLMPlayerControlView: UIView {
     var resolutionBtn : UIButton = {
         let btn = UIButton(type: UIButtonType.custom)
         btn.titleLabel?.font = UIFont.systemFont(ofSize: 12)
-        btn.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.7)
+        btn.backgroundColor = RGBA(r: 0, g: 0, b: 0, a: 0.7)
         return btn
     }()
     /** 分辨率的View */
@@ -134,13 +134,13 @@ class DLMPlayerControlView: UIView {
         btn.setTitle("加载失败,点击重试", for: .normal)
         btn.setTitleColor(UIColor.white, for: .normal)
         btn.titleLabel?.font = UIFont.systemFont(ofSize: 14)
-        btn.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.7)
+        btn.backgroundColor = RGBA(r: 0, g: 0, b: 0, a: 0.7)
         return btn
     }()
     /** 快进快退View*/
     var fastView : UIView = {
         let fastV = UIView()
-        fastV.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.8)
+        fastV.backgroundColor = RGBA(r: 0, g: 0, b: 0, a: 0.8)
         fastV.layer.cornerRadius = 4
         fastV.layer.masksToBounds = true
         return fastV
@@ -487,7 +487,7 @@ extension DLMPlayerControlView {
 //MARK: - 私有方法
 extension DLMPlayerControlView {
     fileprivate func hideControlView() {
-        self.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0)
+        self.backgroundColor = RGBA(r: 0, g: 0, b: 0, a: 0)
         self.topImageView.alpha = self.playeEnd == true ? 1 : 0
         self.bottomImageView.alpha = 0
         self.lockBtn.alpha = 0
@@ -507,7 +507,7 @@ extension DLMPlayerControlView {
             self.topImageView.alpha = 1
             self.bottomImageView.alpha = 1
         }
-        self.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.3)
+        self.backgroundColor = RGBA(r: 0, g: 0, b: 0, a: 0.3)
         self.lockBtn.alpha = 1
 //        if (self.isCellVideo) {
             //    self.shrink                = NO;
@@ -582,7 +582,7 @@ extension DLMPlayerControlView {
         isShowing = false
         // 隐藏controlView
         hideControlView()
-        self.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.3)
+        self.backgroundColor = RGBA(r: 0, g: 0, b: 0, a: 0.3)
 //        ZFPlayerShared.isStatusBarHidden = NO;
         self.bottomProgressView.alpha = 0
     }

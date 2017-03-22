@@ -142,6 +142,14 @@ class DLMPlayerView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        self.layoutIfNeeded()
+        if let layer = playerLayer {
+            layer.frame = self.bounds
+        }
+//        [UIApplication sharedApplication].statusBarHidden = NO;
+    }
 }
 
 //MARK: - 初始化Player
@@ -150,9 +158,11 @@ extension DLMPlayerView {
         cellPlayerOnCenter = true
     }
     fileprivate func configDLMPlayer() {
+        
         urlAsset = AVURLAsset(url: self.videoURL!)
         // 初始化playerItem
-        self.playerItem = AVPlayerItem(asset: self.urlAsset)
+        setNewPlayerItem(newPlayerItem: AVPlayerItem(asset: self.urlAsset))
+//        self.playerItem = AVPlayerItem(asset: self.urlAsset)
         // 每次都重新创建Player，替换replaceCurrentItemWithPlayerItem:，该方法阻塞线程
         self.player = AVPlayer(playerItem: playerItem)
         
@@ -408,7 +418,91 @@ extension DLMPlayerView {
     }
     
     //kvo
-    
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if object as? AVPlayerItem == self.player.currentItem {
+            if let item = self.player.currentItem {
+                if keyPath == "status" {
+                    if item.status == .readyToPlay {
+                        self.setNeedsLayout()
+                        self.layoutIfNeeded()
+                        // 添加playerLayer到self.layer
+                        self.layer.insertSublayer(self.playerLayer!, at: 0)
+                        self.setNewState(newState: .Playing)
+                        // 加载完成后，再添加平移手势
+                        // 添加平移手势，用来控制音量、亮度、快进快退
+
+                    }else if item.status == .failed {
+                    
+                    }
+                }else if keyPath == "loadedTimeRanges" {
+                    
+                }else if keyPath == "playbackBufferEmpty" {
+                
+                }else if keyPath == "playbackLikelyToKeepUp" {
+                
+                }
+            }
+            
+        }
+//        if (object == self.player.currentItem) {
+//            if ([keyPath isEqualToString:@"status"]) {
+//                
+//                if (self.player.currentItem.status == AVPlayerItemStatusReadyToPlay) {
+//                    [self setNeedsLayout];
+//                    [self layoutIfNeeded];
+//                    // 添加playerLayer到self.layer
+//                    [self.layer insertSublayer:self.playerLayer atIndex:0];
+//                    self.state = ZFPlayerStatePlaying;
+//                    // 加载完成后，再添加平移手势
+//                    // 添加平移手势，用来控制音量、亮度、快进快退
+//                    UIPanGestureRecognizer *panRecognizer = [[UIPanGestureRecognizer alloc]initWithTarget:self action:@selector(panDirection:)];
+//                    panRecognizer.delegate = self;
+//                    [panRecognizer setMaximumNumberOfTouches:1];
+//                    [panRecognizer setDelaysTouchesBegan:YES];
+//                    [panRecognizer setDelaysTouchesEnded:YES];
+//                    [panRecognizer setCancelsTouchesInView:YES];
+//                    [self addGestureRecognizer:panRecognizer];
+//                    
+//                    // 跳到xx秒播放视频
+//                    if (self.seekTime) {
+//                        [self seekToTime:self.seekTime completionHandler:nil];
+//                    }
+//                    self.player.muted = self.mute;
+//                } else if (self.player.currentItem.status == AVPlayerItemStatusFailed) {
+//                    self.state = ZFPlayerStateFailed;
+//                }
+//            } else if ([keyPath isEqualToString:@"loadedTimeRanges"]) {
+//                
+//                // 计算缓冲进度
+//                NSTimeInterval timeInterval = [self availableDuration];
+//                CMTime duration             = self.playerItem.duration;
+//                CGFloat totalDuration       = CMTimeGetSeconds(duration);
+//                [self.controlView zf_playerSetProgress:timeInterval / totalDuration];
+//                
+//            } else if ([keyPath isEqualToString:@"playbackBufferEmpty"]) {
+//                
+//                // 当缓冲是空的时候
+//                if (self.playerItem.playbackBufferEmpty) {
+//                    self.state = ZFPlayerStateBuffering;
+//                    [self bufferingSomeSecond];
+//                }
+//                
+//            } else if ([keyPath isEqualToString:@"playbackLikelyToKeepUp"]) {
+//                
+//                // 当缓冲好的时候
+//                if (self.playerItem.playbackLikelyToKeepUp && self.state == ZFPlayerStateBuffering){
+//                    self.state = ZFPlayerStatePlaying;
+//                }
+//            }
+//        } else if (object == self.tableView) {
+//            if ([keyPath isEqualToString:kZFPlayerViewContentOffset]) {
+//                if (self.isFullScreen) { return; }
+//                // 当tableview滚动时处理playerView的位置
+//                [self handleScrollOffsetWithDict:change];
+//            }
+//        }
+
+    }
 
 }
 
