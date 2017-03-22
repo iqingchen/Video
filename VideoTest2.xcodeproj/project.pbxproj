@@ -60,6 +60,7 @@
 		1F9FE9C41E7FEECF0019C772 /* DLMPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F9FE9C31E7FEECF0019C772 /* DLMPlayerView.swift */; };
 		1F9FE9C61E7FF45B0019C772 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F9FE9C51E7FF45B0019C772 /* MediaPlayer.framework */; };
 		1F9FE9C81E8002140019C772 /* DLMPlayerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F9FE9C71E8002140019C772 /* DLMPlayerModel.swift */; };
+		1F9FE9D31E80F4830019C772 /* DLMPlayerControlView+Delegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F9FE9D21E80F4830019C772 /* DLMPlayerControlView+Delegate.swift */; };
 		6D27338B9C61798AAE0B37B7 /* Pods_VideoTest2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BD80BFCD085DD3513C1E0D92 /* Pods_VideoTest2.framework */; };
 /* End PBXBuildFile section */
 
@@ -140,6 +141,7 @@
 		1F9FE9C31E7FEECF0019C772 /* DLMPlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DLMPlayerView.swift; sourceTree = "<group>"; };
 		1F9FE9C51E7FF45B0019C772 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		1F9FE9C71E8002140019C772 /* DLMPlayerModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DLMPlayerModel.swift; sourceTree = "<group>"; };
+		1F9FE9D21E80F4830019C772 /* DLMPlayerControlView+Delegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "DLMPlayerControlView+Delegate.swift"; sourceTree = "<group>"; };
 		29D4E186EDB8296C1D05F763 /* Pods-VideoTest2.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoTest2.release.xcconfig"; path = "Pods/Target Support Files/Pods-VideoTest2/Pods-VideoTest2.release.xcconfig"; sourceTree = "<group>"; };
 		4288AD777495501E9C9CCCCC /* Pods-VideoTest2.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoTest2.debug.xcconfig"; path = "Pods/Target Support Files/Pods-VideoTest2/Pods-VideoTest2.debug.xcconfig"; sourceTree = "<group>"; };
 		BD80BFCD085DD3513C1E0D92 /* Pods_VideoTest2.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VideoTest2.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -202,10 +204,12 @@
 				1F9FE9C31E7FEECF0019C772 /* DLMPlayerView.swift */,
 				1F9FE9C71E8002140019C772 /* DLMPlayerModel.swift */,
 				1F9FE8E51E7FA34A0019C772 /* DLMPlayerControlView.swift */,
+				1F9FE9D21E80F4830019C772 /* DLMPlayerControlView+Delegate.swift */,
 				1F9FE8E71E7FA4790019C772 /* ASValueTrackingSlider.swift */,
 				1F9FE9C11E7FC1A30019C772 /* ASValuePopUpView.swift */,
 				1F9FE8E11E7F9F1F0019C772 /* DLMBrightnessView.swift */,
 				1F9FE8E31E7FA1E70019C772 /* Common.swift */,
+				1F9FE9CF1E80F3150019C772 /* Category */,
 				1F9FE8681E7F99410019C772 /* Main.storyboard */,
 				1F9FE86B1E7F99410019C772 /* Assets.xcassets */,
 				1F9FE86D1E7F99410019C772 /* LaunchScreen.storyboard */,
@@ -276,6 +280,13 @@
 				1F9FE8B91E7F9D7A0019C772 /* ZFPlayer_unlock-nor@3x.png */,
 			);
 			path = Resource;
+			sourceTree = "<group>";
+		};
+		1F9FE9CF1E80F3150019C772 /* Category */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Category;
 			sourceTree = "<group>";
 		};
 		2D0418B701136D022948D4B9 /* Frameworks */ = {
@@ -525,6 +536,7 @@
 				1F9FE9C41E7FEECF0019C772 /* DLMPlayerView.swift in Sources */,
 				1F9FE8671E7F99410019C772 /* ViewController.swift in Sources */,
 				1F9FE9C81E8002140019C772 /* DLMPlayerModel.swift in Sources */,
+				1F9FE9D31E80F4830019C772 /* DLMPlayerControlView+Delegate.swift in Sources */,
 				1F9FE8E61E7FA34A0019C772 /* DLMPlayerControlView.swift in Sources */,
 				1F9FE8651E7F99410019C772 /* AppDelegate.swift in Sources */,
 				1F9FE8E21E7F9F1F0019C772 /* DLMBrightnessView.swift in Sources */,

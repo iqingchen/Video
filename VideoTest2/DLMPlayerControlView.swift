@@ -1,5 +1,5 @@
 //
-//  DLMPlayerControlView.swift
+//  ˜.swift
 //  VideoTest2
 //
 //  Created by zhang on 2017/3/20.
@@ -14,6 +14,7 @@ let DLMPlayerAnimationTimeInterval : CGFloat = 7.0
 let DLMPlayerControlBarAutoFadeOutTimeInterval : CGFloat = 0.35
 
 class DLMPlayerControlView: UIView {
+    var delegate : DLMPlayerControlViewDelegate?
     /** 标题 */
     var titleLabel : UILabel = {
         let title = UILabel()
@@ -183,9 +184,9 @@ class DLMPlayerControlView: UIView {
     var resolutionArray : [String] = []
     
     /** 显示控制层 */
-    var showing : Bool!
+    var isShowing : Bool!
     /** 小屏播放 */
-    var shrink : Bool!
+    var isShrink : Bool!
     /** 在cell上播放 */
     var cellVideo : Bool!
     /** 是否拖拽slider控制播放进度 */
@@ -193,7 +194,7 @@ class DLMPlayerControlView: UIView {
     /** 是否播放结束 */
     var playeEnd : Bool!
     /** 是否全屏播放 */
-    var fullScreen : Bool!
+    var isFullScreen : Bool!
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -391,10 +392,10 @@ extension DLMPlayerControlView {
         self.failBtn.isHidden              = true
         self.backgroundColor             = UIColor.clear
         self.downLoadBtn.isEnabled         = true
-        self.shrink                      = false
-        self.showing                     = false
+        self.isShrink                      = false
+        self.isShowing                     = false
         self.playeEnd                    = false
-        self.lockBtn.isHidden              = !self.fullScreen;
+        self.lockBtn.isHidden              = !self.isFullScreen;
         self.failBtn.isHidden              = true
         self.placeholderImageView.alpha  = 1;
     }
@@ -416,8 +417,8 @@ extension DLMPlayerControlView {
      */
     func onDeviceOrientationChange() {
 //        if (ZFPlayerShared.isLockScreen) { return; }
-        self.lockBtn.isHidden = !self.fullScreen
-        self.fullScreenBtn.isSelected = self.fullScreen
+        self.lockBtn.isHidden = !self.isFullScreen
+        self.fullScreenBtn.isSelected = self.isFullScreen
         let orientation = UIDevice.current.orientation
         if orientation == .faceUp || orientation == .faceDown || orientation == .unknown || orientation == .portraitUpsideDown {
             return
@@ -480,5 +481,113 @@ extension DLMPlayerControlView {
     }
     func failBtnClick(btn: UIButton) {
         
+    }
+}
+
+//MARK: - 私有方法
+extension DLMPlayerControlView {
+    fileprivate func hideControlView() {
+        self.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0)
+        self.topImageView.alpha = self.playeEnd == true ? 1 : 0
+        self.bottomImageView.alpha = 0
+        self.lockBtn.alpha = 0
+        self.bottomProgressView.alpha = 1
+        // 隐藏resolutionView
+        resolutionBtn.isSelected = true
+        self.resolutionBtnClick(btn: self.resolutionBtn)
+        if isFullScreen && !playeEnd && !isShrink {
+//            ZFPlayerShared.isStatusBarHidden = YES;
+        }
+    }
+    fileprivate func showControlView() {
+        if self.lockBtn.isSelected {
+            self.topImageView.alpha = 0
+            self.bottomImageView.alpha = 0
+        }else {
+            self.topImageView.alpha = 1
+            self.bottomImageView.alpha = 1
+        }
+        self.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.3)
+        self.lockBtn.alpha = 1
+//        if (self.isCellVideo) {
+            //    self.shrink                = NO;
+            //    }
+        self.bottomProgressView.alpha = 0
+//        ZFPlayerShared.isStatusBarHidden = NO;
+    }
+    
+    func autoFadeOutControlView() {
+        NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(self.dlm_playerHideControlView), object: nil)
+        self.perform(#selector(self.dlm_playerHideControlView), with: nil, afterDelay: TimeInterval(DLMPlayerAnimationTimeInterval))
+    }
+}
+
+//MARK: - 暴露给外界的方法
+extension DLMPlayerControlView {
+    /**  取消延时隐藏controlView的方法*/
+    func dlm_playerCancelAutoFadeOutControlView() {
+        self.isShowing = false
+        NSObject.cancelPreviousPerformRequests(withTarget: self)
+    }
+    /** 显示控制层*/
+    func dlm_playerShowControlView() {
+        if isShowing == true {
+            self.dlm_playerHideControlView()
+            return
+        }
+        self.dlm_playerCancelAutoFadeOutControlView()
+        UIView.animate(withDuration: TimeInterval(DLMPlayerControlBarAutoFadeOutTimeInterval), animations: {
+            self.showControlView()
+        }) { (finished) in
+            self.isShowing = true
+            self.autoFadeOutControlView()
+        }
+    }
+    /** 隐藏控制层 */
+    func dlm_playerHideControlView() {
+        if !isShowing {
+            return
+        }
+        self.dlm_playerCancelAutoFadeOutControlView()
+        UIView.animate(withDuration: TimeInterval(DLMPlayerControlBarAutoFadeOutTimeInterval), animations: { 
+            self.hideControlView()
+        }) { (finished) in
+            self.isShowing = false
+        }
+    }
+
+    /** 正在播放（隐藏placeholderImageView） */
+    func dlm_playerItemPlaying() {
+        UIView.animate(withDuration: 1.0) { 
+            self.placeholderImageView.alpha = 0
+        }
+    }
+    /** 视频加载失败 */
+    func dlm_playerItemStatusFailed(error: Error) {
+        failBtn.isHidden = false
+    }
+    /** 加载的菊花 */
+    func dlm_playerActivity(animated: Bool) {
+        if animated == true {
+            self.activity.startAnimating()
+            self.fastView.isHidden = true
+        }else {
+            self.activity.stopAnimating()
+        }
+    }
+    /** 播放完了 */
+    func dlm_playerPlayEnd() {
+        repeatBtn.isHidden = false
+        playeEnd = true
+        isShowing = false
+        // 隐藏controlView
+        hideControlView()
+        self.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.3)
+//        ZFPlayerShared.isStatusBarHidden = NO;
+        self.bottomProgressView.alpha = 0
+    }
+    /** 播放按钮状态 */
+    func dlm_playerPlayBtnState(state: Bool) {
+        startBtn.isSelected = state
     }
 }

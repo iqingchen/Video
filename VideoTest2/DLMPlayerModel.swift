@@ -36,9 +36,9 @@ class DLMPlayerModel: NSObject {
     var fatherView : UIView!
     
     // 自定义构造函数
-    init(dict: [NSString : NSObject]) {
-        super.init()
-        setValuesForKeys(dict as [String : Any])
-    }
-    override func setValue(_ value: Any?, forUndefinedKey key: String) {}
+//    init(dict: [NSString : NSObject]) {
+//        super.init()
+//        setValuesForKeys(dict as [String : Any])
+//    }
+//    override func setValue(_ value: Any?, forUndefinedKey key: String) {}
 }
