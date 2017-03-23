@@ -64,7 +64,7 @@ class DLMPlayerView: UIView {
     /** 滑杆 */
     var volumeViewSlider : UISlider!
     /** 用来保存快进的总时长 */
-    var sumTime : CGFloat!
+    var sumTime : Float = 0
     /** 定义一个实例变量，保存枚举值 */
     var panDirection : PanDirection!
     /** 播发器的几种状态 */
@@ -120,7 +120,7 @@ class DLMPlayerView: UIView {
 //    /** 是否切换分辨率*/
 //    @property (nonatomic, assign) BOOL                   isChangeResolution;
 //    /** 是否正在拖拽 */
-//    @property (nonatomic, assign) BOOL                   isDragged;
+    var isDragged : Bool = false
 
     var controlView : DLMPlayerControlView?
     var playerModel : DLMPlayerModel?
@@ -447,27 +447,29 @@ extension DLMPlayerView {
      *
      *  @param dragedSeconds 视频跳转的秒数
      */
-    func seekToTime(dragedSeconds: Int, completionHandler: (()->Void)?) {
-        if let item = self.player.currentItem, item.status == .readyToPlay {
+    func seekToTime(dragedSeconds: Int, completionHandler: ((_ finish: Bool)->Void)?) {
+        if let item = self.playerItem, item.status == .readyToPlay {
             // seekTime:completionHandler:不能精确定位
             // 如果需要精确定位，可以使用seekToTime:toleranceBefore:toleranceAfter:completionHandler:
             // 转换成CMTime才能给player来控制播放进度
             self.controlView?.dlm_playerActivity(animated: true)
             self.player.pause()
             let dragedCMTime = CMTimeMake(Int64(dragedSeconds), 1)
-
-//            self.player.seek(to: CMTime(dragedSeconds), toleranceBefore: CMTime(value: 1, timescale: 1), toleranceAfter: CMTime(value: 1, timescale: 1), completionHandler: { (finished) in
-//                self.controlView?.dlm_playerActivity(animated: false)
-//                //视频跳转回调
-////                completionHandler
-//                self.player.play()
-//                self.seekTime = 0
-////                self
-//            })
+            
+            self.player.seek(to: dragedCMTime, toleranceBefore: CMTimeMake(1, 1), toleranceAfter: CMTimeMake(1, 1), completionHandler: { (finished) in
+                self.controlView?.dlm_playerActivity(animated: false)
+                //视频跳转回调
+//                completionHandlertotalDuration
+                self.player.play()
+                self.seekTime = 0
+                self.isDragged = false
+                // 结束滑动
+                self.controlView?.dlm_playerDraggedEnd()
+                if item.isPlaybackLikelyToKeepUp && self.isLocalVideo {
+                    self.setNewState(newState: .Buffering)
+                }
+            })
         }
-//        completionHandler{[weak self] ()->()in
-//        
-//        }
     }
 //    - (void)seekToTime:(NSInteger)dragedSeconds completionHandler:(void (^)(BOOL finished))completionHandler {
 //    if (self.player.currentItem.status == AVPlayerItemStatusReadyToPlay) {
@@ -597,8 +599,91 @@ extension DLMPlayerView {
 extension DLMPlayerView {
     //调节声音和亮度
     @objc fileprivate func panDirection(pan: UIPanGestureRecognizer) {
+        //根据在view上Pan的位置，确定是调音量还是亮度
+        let locationPoint = pan.location(in: self)
         
+        // 我们要响应水平移动和垂直移动
+        // 根据上次和本次移动的位置，算出一个速率的point
+        let veloctyPoint = pan.velocity(in: self)
+        // 判断是垂直移动还是水平移动
+        switch pan.state {
+        case UIGestureRecognizerState.began:
+            // 使用绝对值来判断移动的方向
+            let x = fabs(veloctyPoint.x)
+            let y = fabs(veloctyPoint.y)
+            
+            if x > y { //水平移动
+                self.panDirection = PanDirection.HorizontalMoved
+                // 给sumTime初值
+                if let player = playerLayer?.player {
+                    let time = player.currentTime()
+                    self.sumTime = Float(CGFloat(TimeInterval(time.value) / TimeInterval(time.timescale)))
+                }
+            } else if x < y {//垂直移动
+                self.panDirection = PanDirection.VerticalMoved
+                if locationPoint.x > self.bounds.size.width / 2 {
+                    self.isVolume = true
+                } else {
+                    self.isVolume = false
+                }
+            }
+            break
+        case UIGestureRecognizerState.changed:
+            if self.panDirection == PanDirection.HorizontalMoved {
+                self.horizontalMoved(value: veloctyPoint.x) // 水平移动的方法只要x方向的值
+            }else if self.panDirection == PanDirection.VerticalMoved {
+                self.verticalMoved(value: veloctyPoint.y)   // 垂直移动方法只要y方向的值
+            }
+            break
+        case UIGestureRecognizerState.ended:
+            // 移动结束也需要判断垂直或者平移
+            // 比如水平移动结束时，要快进到指定位置，如果这里没有判断，当我们调节音量完之后，会出现屏幕跳动的bug
+            if self.panDirection == PanDirection.HorizontalMoved {
+                isPauseByUser = false
+                self.seekToTime(dragedSeconds: Int(sumTime), completionHandler: nil)
+                sumTime = 0
+            }else {
+                self.isVolume = false
+            }
+        default:
+            break
+        }
     }
+    //pan水平移动的方法
+    fileprivate func horizontalMoved(value: CGFloat) {
+        // 每次滑动需要叠加时间
+        sumTime = sumTime + Float(value) / 200
+//        sumTime += value / 200
+        if let playerItem = player.currentItem {
+            // 每次滑动需要叠加时间，通过一定的比例，使滑动一直处于统一水平
+            let totalTime       = playerItem.duration
+            
+            // 防止出现NAN
+            if totalTime.timescale == 0 { return }
+            
+            let totalDuration   = Float(totalTime.value) / Float(totalTime.timescale)
+            if (self.sumTime > totalDuration) { self.sumTime = totalDuration}
+            if (self.sumTime < 0){ self.sumTime = 0}
+            
+            var style = false
+            if value > 0 {
+                style = true
+            }
+            if value < 0 {
+                style = false
+            }
+            if value == 0 {
+                return
+            }
+            isDragged = true
+            self.controlView?.dlm_playerDraggedTime(draggedTime: Int(sumTime), totalTime: Int(totalDuration), forawrd: style, preview: false)
+        }
+    }
+    //pan垂直移动的方法
+    fileprivate func verticalMoved(value: CGFloat) {
+        self.isVolume ? (self.volumeViewSlider.value -= Float(value / 10000)) : (UIScreen.main.brightness -= value / 10000)
+    }
+    
     //轻拍方法
     @objc fileprivate func singleTapAction(tap: UITapGestureRecognizer) {
         if tap.state == .recognized {
@@ -809,7 +894,7 @@ extension DLMPlayerView : DLMPlayerControlViewDelegate {
     func dlm_controlViewProgressSliderTouchEnded(controlView: DLMPlayerControlView, slider: UISlider) {
         if let item = player.currentItem, item.status == AVPlayerItemStatus.readyToPlay {
             self.isPauseByUser = false
-//            self.isDragged = NO;
+            self.isDragged = false
             // 视频总时间长度
             let total = Int(item.duration.value) / Int(item.duration.timescale)
             //计算出拖动的当前秒数

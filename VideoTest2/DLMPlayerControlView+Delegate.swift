@@ -43,9 +43,54 @@ extension DLMPlayerControlView {
      * @param preview     是否有预览图
      */
     func dlm_playerDraggedTime(draggedTime: Int, totalTime: Int, forawrd: Bool, preview: Bool) {
+        // 快进快退时候停止菊花
+        self.activity.stopAnimating()
+        // 拖拽的时长
+        let proMin = draggedTime / 60 //当前秒
+        let proSec = draggedTime % 60 //当前分钟
+        // duration 总时长
+        let durMin = totalTime / 60 //总秒
+        let durSec = totalTime % 60 //总分钟
         
+        let currentTimeStr = "\(proMin):\(proSec)"
+        let totalTimeStr = "\(durMin):\(durSec)"
+        let draggedValue = Float(draggedTime / totalTime)
+        let timeStr = "\(currentTimeStr) / \(totalTimeStr)"
+        
+        // 显示、隐藏预览窗
+//        self.videoSlider.popUpView.hidden = !preview;
+        // 更新slider的值
+        self.videoSlider.value            = draggedValue
+        // 更新bottomProgressView的值
+        self.bottomProgressView.progress  = draggedValue
+        // 更新当前时间
+        self.currentTimeLabel.text        = currentTimeStr
+        // 正在拖动控制播放进度
+        self.dragged = true
+        if forawrd {
+            fastImageView.image = UIImage(named: "ZFPlayer_fast_forward")
+        }else {
+            fastImageView.image = UIImage(named: "ZFPlayer_fast_backward")
+        }
+        
+        self.fastView.isHidden         = preview
+        self.fastTimeLabel.text        = timeStr
+        self.fastProgressView.progress = draggedValue
     }
-    
+    /**
+     * 滑动调整进度结束结束
+     */
+    func dlm_playerDraggedEnd() {
+        let popTime = DispatchTime.now() + Double(Int64( Double(NSEC_PER_SEC) * 1.0 )) / Double(NSEC_PER_SEC)
+        DispatchQueue.main.asyncAfter(deadline: popTime) { 
+            self.fastView.isHidden = true
+        }
+        self.dragged = false
+        // 结束滑动时候把开始播放按钮改为播放状态
+        self.startBtn.isSelected = true
+        // 滑动结束延时隐藏controlView
+        self.autoFadeOutControlView()
+    }
 }
 
 protocol DLMPlayerControlViewDelegate {
