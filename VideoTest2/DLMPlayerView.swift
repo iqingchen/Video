@@ -42,7 +42,7 @@ class DLMPlayerView: UIView {
     /** 播发器的几种状态 */
     var state : DLMPlayerState?
     /** 静音（默认为NO）*/
-    var mute : Bool!
+    var mute : Bool = false
     /** 当cell划出屏幕的时候停止播放（默认为NO） */
     var stopPlayWhileCellNotVisable : Bool?
     /** 当cell播放视频由全屏变为小屏时候，是否回到中间位置(默认YES) */
@@ -70,17 +70,17 @@ class DLMPlayerView: UIView {
     /** 播发器的几种状态 */
 //    var state : DLMPlayerState!
     /** 是否为全屏 */
-    var isFullScreen : Bool!
+    var isFullScreen : Bool = false
     /** 是否锁定屏幕方向 */
-    var isLocked : Bool!
+    var isLocked : Bool = false
     /** 是否在调节音量*/
-    var isVolume : Bool!
+    var isVolume : Bool = false
     /** 是否被用户暂停 */
 //    var isPauseByUser : Bool!
     /** 是否播放本地文件 */
     var isLocalVideo : Bool!
     /** slider上次的值 */
-    var sliderLastValue : Bool!
+    var sliderLastValue : Float = 0
     /** 是否再次设置URL播放视频 */
     var repeatToPlay : Bool!
     /** 播放完了*/
@@ -113,8 +113,8 @@ class DLMPlayerView: UIView {
 //    @property (nonatomic, strong) NSIndexPath            *indexPath;
 //    /** ViewController中页面是否消失 */
 //    @property (nonatomic, assign) BOOL                   viewDisappear;
-//    /** 是否在cell上播放video */
-//    @property (nonatomic, assign) BOOL                   isCellVideo;
+    /** 是否在cell上播放video */
+    var isCellVideo : Bool = false
 //    /** 是否缩小视频在底部 */
     var isBottomVideo : Bool = false
 //    /** 是否切换分辨率*/
@@ -186,11 +186,11 @@ extension DLMPlayerView {
         if self.videoURL?.scheme == "file" {
             self.state = DLMPlayerState.Playing
             self.isLocalVideo = true
-            self.controlView?.delegate?.dlm_playerDownloadBtnState(state: false)
+//            self.controlView?.delegate?.dlm_playerDownloadBtnState(state: false)
         }else {
             self.state = DLMPlayerState.Buffering
             self.isLocalVideo = false
-            self.controlView?.delegate?.dlm_playerDownloadBtnState(state: true)
+//            self.controlView?.delegate?.dlm_playerDownloadBtnState(state: true)
         }
         // 开始播放
         play()
@@ -304,30 +304,25 @@ extension DLMPlayerView {
     
     //创建手势
     fileprivate func createGesture() {
-//
-//        - (void)createGesture {
-//            // 单击
-//            self.singleTap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(singleTapAction:)];
-//            self.singleTap.delegate                = self;
-//            self.singleTap.numberOfTouchesRequired = 1; //手指数
-//            self.singleTap.numberOfTapsRequired    = 1;
-//            [self addGestureRecognizer:self.singleTap];
-//            
-//            // 双击(播放/暂停)
-//            self.doubleTap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(doubleTapAction:)];
-//            self.doubleTap.delegate                = self;
-//            self.doubleTap.numberOfTouchesRequired = 1; //手指数
-//            self.doubleTap.numberOfTapsRequired    = 2;
-//            
-//            [self addGestureRecognizer:self.doubleTap];
-//            
-//            // 解决点击当前view时候响应其他控件事件
-//            [self.singleTap setDelaysTouchesBegan:YES];
-//            [self.doubleTap setDelaysTouchesBegan:YES];
-//            // 双击失败响应单击事件
-//            [self.singleTap requireGestureRecognizerToFail:self.doubleTap];
-//        }
+        // 单击
+        self.singleTap = UITapGestureRecognizer(target: self, action: #selector(self.singleTapAction(tap:)))
+        singleTap.delegate = self
+        singleTap.numberOfTapsRequired = 1
+        singleTap.numberOfTouchesRequired = 1
+        self.addGestureRecognizer(singleTap)
+        // 双击(播放/暂停)
+        self.doubleTap = UITapGestureRecognizer(target: self, action: #selector(self.doubleTapAction(tap:)))
+        doubleTap.delegate = self
+        doubleTap.numberOfTapsRequired = 2
+        doubleTap.numberOfTouchesRequired = 1
+        self.addGestureRecognizer(doubleTap)
+        // 解决点击当前view时候响应其他控件事件
+        singleTap.delaysTouchesBegan = true
+        doubleTap.delaysTouchesBegan = true
+        // 双击失败响应单击事件
+        singleTap.require(toFail: doubleTap)
     }
+    
     fileprivate func createTimer() {
         self.timeObserve = self.player.addPeriodicTimeObserver(forInterval: CMTimeMakeWithSeconds(1, 1), queue: nil, using: {[weak self] (time) in
             let currentItem = self?.playerItem
@@ -337,8 +332,8 @@ extension DLMPlayerView {
                     if(loadRangesTemp.count > 0 && currentItemTemp.duration.timescale != 0){
                         let currentTime : Int = Int(CMTimeGetSeconds(currentItemTemp.currentTime()))
                         let totalTime = Int(Int64(currentItemTemp.duration.value) / Int64(currentItemTemp.duration.timescale))
-                        let value = CGFloat(CMTimeGetSeconds(currentItemTemp.currentTime())) / CGFloat(totalTime)
-                        self?.controlView?.delegate?.dlm_playerCurrentTime(currentTime: currentTime, totalTime: totalTime, sliderValue: value)
+                        let value = Float(CMTimeGetSeconds(currentItemTemp.currentTime())) / Float(totalTime)
+                        self?.controlView?.dlm_playerCurrentTime(currentTime: currentTime, totalTime: totalTime, value: value)
                     }
                 }
             }
@@ -349,20 +344,77 @@ extension DLMPlayerView {
         
     }
     
-    //播放
-    fileprivate func play() {
-        self.controlView?.dlm_playerPlayBtnState(state: true)
-        if self.state == DLMPlayerState.Pause {
-            self.state = DLMPlayerState.Playing
+    /**
+     *  缓冲较差时候回调这里
+     */
+    func bufferingSomeSecond() {
+        self.setNewState(newState: .Buffering)
+        // playbackBufferEmpty会反复进入，因此在bufferingOneSecond延时播放执行完之前再调用bufferingSomeSecond都忽略
+        var isBuffering = false
+        if isBuffering {
+            return
         }
-        self.isPauseByUser = false
-        player.play()
-        if !self.isBottomVideo {
-            // 显示控制层
-            self.controlView?.dlm_playerCancelAutoFadeOutControlView()
-            self.controlView?.dlm_playerShowControlView()
+        // 需要先暂停一小会之后再播放，否则网络状况不好的时候时间在走，声音播放不出来
+        self.player.pause()
+        let popTime = DispatchTime.now() + Double(Int64( Double(NSEC_PER_SEC) * 1.0 )) / Double(NSEC_PER_SEC)
+        
+        DispatchQueue.main.asyncAfter(deadline: popTime) {
+            // 如果此时用户已经暂停了，则不再需要开启播放了
+            if self.isPauseByUser == true {
+                isBuffering = false
+                return
+            }
+            self.play()
+            // 如果执行了play还是没有播放则说明还没有缓存好，则再次缓存一段时间
+            isBuffering = false
+            if let item = self.playerItem {
+                if !item.isPlaybackLikelyToKeepUp {
+                    self.bufferingSomeSecond()
+                }
+            }
         }
+
     }
+    /**
+     *  计算缓冲进度
+     *
+     *  @return 缓冲进度
+     */
+    func availableDuration() -> TimeInterval {
+        let loadedTimeRanges = player.currentItem?.loadedTimeRanges
+        let timeRange = loadedTimeRanges?.first?.timeRangeValue
+        var result : TimeInterval = 0
+        if let time = timeRange {
+            let startSeconds = CMTimeGetSeconds(time.start)
+            let durationSeconds = CMTimeGetSeconds(time.duration)
+            result = startSeconds + durationSeconds
+        }
+        return result
+    }
+    /** 全屏 */
+   
+    func _fullScreenAction() {
+//        - (void)_fullScreenAction {
+//            if (ZFPlayerShared.isLockScreen) {
+//                [self unLockTheScreen];
+//                return;
+//            }
+//            if (self.isFullScreen) {
+//                [self interfaceOrientation:UIInterfaceOrientationPortrait];
+//                self.isFullScreen = NO;
+//                return;
+//            } else {
+//                UIDeviceOrientation orientation = [UIDevice currentDevice].orientation;
+//                if (orientation == UIDeviceOrientationLandscapeRight) {
+//                    [self interfaceOrientation:UIInterfaceOrientationLandscapeLeft];
+//                } else {
+//                    [self interfaceOrientation:UIInterfaceOrientationLandscapeRight];
+//                }
+//                self.isFullScreen = YES;
+//            }
+//        }
+    }
+
 }
 
 //MARK: - 添加通知
@@ -390,6 +442,74 @@ extension DLMPlayerView {
     @objc fileprivate func appDidEnterPlayground() {
     
     }
+    /**
+     *  从xx秒开始播放视频跳转
+     *
+     *  @param dragedSeconds 视频跳转的秒数
+     */
+    func seekToTime(dragedSeconds: Int, completionHandler: (()->Void)?) {
+        if let item = self.player.currentItem, item.status == .readyToPlay {
+            // seekTime:completionHandler:不能精确定位
+            // 如果需要精确定位，可以使用seekToTime:toleranceBefore:toleranceAfter:completionHandler:
+            // 转换成CMTime才能给player来控制播放进度
+            self.controlView?.dlm_playerActivity(animated: true)
+            self.player.pause()
+            let dragedCMTime = CMTimeMake(Int64(dragedSeconds), 1)
+
+//            self.player.seek(to: CMTime(dragedSeconds), toleranceBefore: CMTime(value: 1, timescale: 1), toleranceAfter: CMTime(value: 1, timescale: 1), completionHandler: { (finished) in
+//                self.controlView?.dlm_playerActivity(animated: false)
+//                //视频跳转回调
+////                completionHandler
+//                self.player.play()
+//                self.seekTime = 0
+////                self
+//            })
+        }
+//        completionHandler{[weak self] ()->()in
+//        
+//        }
+    }
+//    - (void)seekToTime:(NSInteger)dragedSeconds completionHandler:(void (^)(BOOL finished))completionHandler {
+//    if (self.player.currentItem.status == AVPlayerItemStatusReadyToPlay) {
+//    // seekTime:completionHandler:不能精确定位
+//    // 如果需要精确定位，可以使用seekToTime:toleranceBefore:toleranceAfter:completionHandler:
+//    // 转换成CMTime才能给player来控制播放进度
+//    [self.controlView zf_playerActivity:YES];
+//    [self.player pause];
+//    CMTime dragedCMTime = CMTimeMake(dragedSeconds, 1); //kCMTimeZero
+//    __weak typeof(self) weakSelf = self;
+//    [self.player seekToTime:dragedCMTime toleranceBefore:CMTimeMake(1,1) toleranceAfter:CMTimeMake(1,1) completionHandler:^(BOOL finished) {
+//    [weakSelf.controlView zf_playerActivity:NO];
+//    // 视频跳转回调
+//    if (completionHandler) { completionHandler(finished); }
+//    [weakSelf.player play];
+//    weakSelf.seekTime = 0;
+//    weakSelf.isDragged = NO;
+//    // 结束滑动
+//    [weakSelf.controlView zf_playerDraggedEnd];
+//    if (!weakSelf.playerItem.isPlaybackLikelyToKeepUp && !weakSelf.isLocalVideo) { weakSelf.state = ZFPlayerStateBuffering; }
+//    
+//    }];
+//    }
+//    }
+
+    // 屏幕转屏
+    func interfaceOrientation(orientation: UIInterfaceOrientation) {
+        if orientation == .landscapeRight || orientation == .landscapeLeft {
+            // 设置横屏
+            
+        }
+    }
+//    - (void)interfaceOrientation:(UIInterfaceOrientation)orientation {
+//    if (orientation == UIInterfaceOrientationLandscapeRight || orientation == UIInterfaceOrientationLandscapeLeft) {
+//    // 设置横屏
+//    [self setOrientationLandscapeConstraint:orientation];
+//    } else if (orientation == UIInterfaceOrientationPortrait) {
+//    // 设置竖屏
+//    [self setOrientationPortraitConstraint];
+//    }
+//    }
+
     //屏幕方向发生变化会调用这里
     @objc fileprivate func onDeviceOrientationChange() {
         
@@ -430,82 +550,108 @@ extension DLMPlayerView {
                         self.setNewState(newState: .Playing)
                         // 加载完成后，再添加平移手势
                         // 添加平移手势，用来控制音量、亮度、快进快退
-
+                        let panRecognizer = UIPanGestureRecognizer(target: self, action: #selector(self.panDirection(pan:)))
+                        panRecognizer.delegate = self
+                        panRecognizer.maximumNumberOfTouches = 1
+                        panRecognizer.delaysTouchesBegan = true
+                        panRecognizer.delaysTouchesEnded = true
+                        panRecognizer.cancelsTouchesInView = true
+                        self.addGestureRecognizer(panRecognizer)
+                        //跳到xx秒播放视频
+                        if (self.seekTime != nil) {
+//                            self.
+                        }
+                        self.player.isMuted = self.mute
                     }else if item.status == .failed {
-                    
+                        self.setNewState(newState: .Failed)
                     }
                 }else if keyPath == "loadedTimeRanges" {
-                    
+                    //计算缓冲进度
+                    let timeInterval = self.availableDuration()
+                    let duration = playerItem?.duration
+                    let totalDuration = CMTimeGetSeconds(duration!)
+                    self.controlView?.dlm_playerSetProgress(progress: Float(timeInterval) / Float(totalDuration))
                 }else if keyPath == "playbackBufferEmpty" {
-                
+                    // 当缓冲是空的时候
+                    if let item = self.playerItem, item.isPlaybackBufferEmpty {
+                        self.setNewState(newState: .Buffering)
+                        self.bufferingSomeSecond()
+                    }
                 }else if keyPath == "playbackLikelyToKeepUp" {
-                
+                    // 当缓冲好的时候
+                    if let item = self.playerItem {
+                        if item.isPlaybackLikelyToKeepUp && self.state == DLMPlayerState.Buffering {
+                            self.setNewState(newState: .Playing)
+                        }
+                    }
                 }
             }
             
         }
-//        if (object == self.player.currentItem) {
-//            if ([keyPath isEqualToString:@"status"]) {
-//                
-//                if (self.player.currentItem.status == AVPlayerItemStatusReadyToPlay) {
-//                    [self setNeedsLayout];
-//                    [self layoutIfNeeded];
-//                    // 添加playerLayer到self.layer
-//                    [self.layer insertSublayer:self.playerLayer atIndex:0];
-//                    self.state = ZFPlayerStatePlaying;
-//                    // 加载完成后，再添加平移手势
-//                    // 添加平移手势，用来控制音量、亮度、快进快退
-//                    UIPanGestureRecognizer *panRecognizer = [[UIPanGestureRecognizer alloc]initWithTarget:self action:@selector(panDirection:)];
-//                    panRecognizer.delegate = self;
-//                    [panRecognizer setMaximumNumberOfTouches:1];
-//                    [panRecognizer setDelaysTouchesBegan:YES];
-//                    [panRecognizer setDelaysTouchesEnded:YES];
-//                    [panRecognizer setCancelsTouchesInView:YES];
-//                    [self addGestureRecognizer:panRecognizer];
-//                    
-//                    // 跳到xx秒播放视频
-//                    if (self.seekTime) {
-//                        [self seekToTime:self.seekTime completionHandler:nil];
-//                    }
-//                    self.player.muted = self.mute;
-//                } else if (self.player.currentItem.status == AVPlayerItemStatusFailed) {
-//                    self.state = ZFPlayerStateFailed;
-//                }
-//            } else if ([keyPath isEqualToString:@"loadedTimeRanges"]) {
-//                
-//                // 计算缓冲进度
-//                NSTimeInterval timeInterval = [self availableDuration];
-//                CMTime duration             = self.playerItem.duration;
-//                CGFloat totalDuration       = CMTimeGetSeconds(duration);
-//                [self.controlView zf_playerSetProgress:timeInterval / totalDuration];
-//                
-//            } else if ([keyPath isEqualToString:@"playbackBufferEmpty"]) {
-//                
-//                // 当缓冲是空的时候
-//                if (self.playerItem.playbackBufferEmpty) {
-//                    self.state = ZFPlayerStateBuffering;
-//                    [self bufferingSomeSecond];
-//                }
-//                
-//            } else if ([keyPath isEqualToString:@"playbackLikelyToKeepUp"]) {
-//                
-//                // 当缓冲好的时候
-//                if (self.playerItem.playbackLikelyToKeepUp && self.state == ZFPlayerStateBuffering){
-//                    self.state = ZFPlayerStatePlaying;
-//                }
-//            }
-//        } else if (object == self.tableView) {
-//            if ([keyPath isEqualToString:kZFPlayerViewContentOffset]) {
-//                if (self.isFullScreen) { return; }
-//                // 当tableview滚动时处理playerView的位置
-//                [self handleScrollOffsetWithDict:change];
-//            }
-//        }
 
     }
 
 }
 
+//MARK: - UIPanGestureRecognizer手势方法
+extension DLMPlayerView {
+    //调节声音和亮度
+    @objc fileprivate func panDirection(pan: UIPanGestureRecognizer) {
+        
+    }
+    //轻拍方法
+    @objc fileprivate func singleTapAction(tap: UITapGestureRecognizer) {
+        if tap.state == .recognized {
+            if self.isBottomVideo && !self.isFullScreen {
+                _fullScreenAction()
+            }else {
+                if self.playDidEnd == true {
+                    return
+                }else {
+                    self.controlView?.dlm_playerShowControlView()
+                }
+            }
+        }
+    }
+    //双击播放／暂停
+    @objc fileprivate func doubleTapAction(tap: UITapGestureRecognizer) {
+        if playDidEnd == true {
+            return
+        }
+        //显示控制层
+        self.controlView?.dlm_playerCancelAutoFadeOutControlView()
+        self.controlView?.dlm_playerShowControlView()
+        if self.isPauseByUser == true {
+            self.play()
+        }else {
+            self.pause()
+        }
+        if !isAutoPlay {
+            isAutoPlay = true
+            self.configDLMPlayer()
+        }
+    }
+}
+//MARK: - UIGestureRecognizer Delegate代理
+extension DLMPlayerView : UIGestureRecognizerDelegate{
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        if gestureRecognizer.isKind(of: UIPanGestureRecognizer.self) {
+            if (isCellVideo && !isFullScreen) || playDidEnd || isLocked {
+                return false
+            }
+        }
+        if gestureRecognizer.isKind(of: UITapGestureRecognizer.self) {
+            if isBottomVideo && !isFullScreen {
+                return false
+            }
+        }
+        if let tView = touch.view, tView.isKind(of: UISlider.self) {
+            return false
+        }
+        return true
+    }
+
+}
 //MARK: - 暴露给外界的方法
 extension DLMPlayerView {
     //指定播放的控制层和模型
@@ -513,6 +659,7 @@ extension DLMPlayerView {
     func playerControlView(frame: CGRect, playerModel: DLMPlayerModel) {
         //指定默认控制层
         let defaultControlView = DLMPlayerControlView(frame: frame)
+        defaultControlView.delegate = self
         self.setNewControlView(newControlView: defaultControlView)
         self.setNewPlayerModel(newPlayerModel: playerModel)
     }
@@ -527,9 +674,154 @@ extension DLMPlayerView {
     func autoPlayTheVideo() {
         configDLMPlayer()
     }
+    //播放
+    func play() {
+        self.controlView?.dlm_playerPlayBtnState(state: true)
+        if self.state == DLMPlayerState.Pause {
+            setNewState(newState: .Playing)
+//            self.state = DLMPlayerState.Playing
+        }
+        self.isPauseByUser = false
+        player.play()
+        if !self.isBottomVideo {
+            // 显示控制层
+            self.controlView?.dlm_playerCancelAutoFadeOutControlView()
+            self.controlView?.dlm_playerShowControlView()
+        }
+    }
+    
+    //暂停
+    func pause() {
+        self.controlView?.dlm_playerPlayBtnState(state: false)
+        if self.state == DLMPlayerState.Playing {
+            self.setNewState(newState: .Pause)
+        }
+        self.isPauseByUser = true
+        player.pause()
+    }
 }
 
-//MARK: - 代理方法
-protocol DLMPlayerViewDelegate {
+//MARK: - DLMPlayerControlViewDelegate代理方法
+extension DLMPlayerView : DLMPlayerControlViewDelegate {
+    func dlm_controlViewPlayAction(controlView: DLMPlayerControlView, btn: UIButton) {
+        self.isPauseByUser = !self.isPauseByUser
+        if isPauseByUser == true {
+            self.pause()
+            if state == DLMPlayerState.Playing {
+                setNewState(newState: .Pause)
+            }
+        }else {
+            self.play()
+            if state == DLMPlayerState.Pause {
+                setNewState(newState: .Playing)
+            }
+        }
+        if !self.isAutoPlay {
+            self.isAutoPlay = true
+            self.configDLMPlayer()
+        }
+    }
     
+    func dlm_controlViewBackAction(controlView: DLMPlayerControlView, btn: UIButton) {
+        if !self.isFullScreen {
+            // player加到控制器上，只有一个player时候
+            self.pause()
+            delegate?.dlm_playerBackAction()
+        }else {
+            self.interfaceOrientation(orientation: .portrait)
+        }
+    }
+    
+    func dlm_controlViewCloseAction(controlView: DLMPlayerControlView, btn: UIButton) {
+        
+    }
+    func dlm_controlViewFullScreenAction(controlView: DLMPlayerControlView, btn: UIButton) {
+        
+    }
+    func dlm_controlViewLockScreenAction(controlView: DLMPlayerControlView, btn: UIButton) {
+        
+    }
+    func dlm_controlViewCenterPlayAction(controlView: DLMPlayerControlView, btn: UIButton) {
+        
+    }
+    func dlm_controlViewRepeatPlayAction(controlView: DLMPlayerControlView, btn: UIButton) {
+        
+    }
+    func dlm_controlViewFailAction(controlView: DLMPlayerControlView, btn: UIButton) {
+        
+    }
+    
+    //关于slider
+    func dlm_controlViewProgressSliderTap(controlView: DLMPlayerControlView, value: CGFloat) {
+        // 视频总时间长度
+        if let item = playerItem {
+            let total = Int(item.duration.value) / Int(item.duration.timescale)
+             //计算出拖动的当前秒数
+            
+            let dragedSeconds = floorf(Float(total) * Float(value))
+            self.controlView?.dlm_playerPlayBtnState(state: true)
+            self.seekToTime(dragedSeconds: Int(dragedSeconds), completionHandler: nil)
+        }
+//        [self seekToTime:dragedSeconds completionHandler:^(BOOL finished) {}];
+    }
+    func dlm_controlViewProgressSliderTouchBegan(controlView: DLMPlayerControlView, slider: UISlider) {
+        
+    }
+    func dlm_controlViewProgressSliderValueChanged(controlView: DLMPlayerControlView, slider: UISlider) {
+        // 拖动改变视频播放进度
+        if let item = player.currentItem, item.status == AVPlayerItemStatus.readyToPlay {
+            var style = false
+            let value = slider.value - self.sliderLastValue
+            if value > 0 {
+                style = true
+            }
+            if value < 0 {
+                style = false
+            }
+            if value == 0 {
+                return
+            }
+            self.sliderLastValue = slider.value
+            let totalTime = Int(item.duration.value) / Int(item.duration.timescale)
+            
+            ////计算出拖动的当前秒数
+            let dragedSeconds = floorf(Float(totalTime) * slider.value)
+            //转换成CMTime才能给player来控制播放进度
+//            let dragedCMTime = CMTimeMake(Int64(dragedSeconds), 1)
+            controlView.dlm_playerDraggedTime(draggedTime: Int(dragedSeconds), totalTime: totalTime, forawrd: style, preview: false)
+            
+            if totalTime > 0 {
+                // 当总时长 > 0时候才能拖动slider
+                if self.isFullScreen && self.hasPreviewView {
+                    
+                }
+            }else {
+                // 此时设置slider值为0
+                slider.value = 0;
+            }
+        }else {
+            // player状态加载失败
+            // 此时设置slider值为0
+            slider.value = 0
+        }
+    }
+    
+    func dlm_controlViewProgressSliderTouchEnded(controlView: DLMPlayerControlView, slider: UISlider) {
+        if let item = player.currentItem, item.status == AVPlayerItemStatus.readyToPlay {
+            self.isPauseByUser = false
+//            self.isDragged = NO;
+            // 视频总时间长度
+            let total = Int(item.duration.value) / Int(item.duration.timescale)
+            //计算出拖动的当前秒数
+            
+            let dragedSeconds = floorf(Float(total) * Float(slider.value))
+            self.seekToTime(dragedSeconds: Int(dragedSeconds), completionHandler: nil)
+        }
+    }
+    
+}
+
+//
+protocol DLMPlayerViewDelegate {
+    func dlm_playerBackAction()
 }

@@ -31,6 +31,7 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = UIColor.lightGray
         
         //加载视频播放器
         self.playerView.autoPlayTheVideo()

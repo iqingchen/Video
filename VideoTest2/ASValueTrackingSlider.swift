@@ -9,5 +9,11 @@
 import UIKit
 
 class ASValueTrackingSlider: UISlider {
-    
+    var numberFormatter : NumberFormatter!
+    var popUpViewColor : UIColor!
+    var keyTimes : [String] = []
+    var valueRange : CGFloat!
+
+    var popUpViewCornerRadius : CGFloat!
+    var popUpViewArrowLength : CGFloat!
 }

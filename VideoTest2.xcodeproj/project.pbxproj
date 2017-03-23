@@ -56,7 +56,6 @@
 		1F9FE8E41E7FA1E70019C772 /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F9FE8E31E7FA1E70019C772 /* Common.swift */; };
 		1F9FE8E61E7FA34A0019C772 /* DLMPlayerControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F9FE8E51E7FA34A0019C772 /* DLMPlayerControlView.swift */; };
 		1F9FE8E81E7FA4790019C772 /* ASValueTrackingSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F9FE8E71E7FA4790019C772 /* ASValueTrackingSlider.swift */; };
-		1F9FE9C21E7FC1A30019C772 /* ASValuePopUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F9FE9C11E7FC1A30019C772 /* ASValuePopUpView.swift */; };
 		1F9FE9C41E7FEECF0019C772 /* DLMPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F9FE9C31E7FEECF0019C772 /* DLMPlayerView.swift */; };
 		1F9FE9C61E7FF45B0019C772 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F9FE9C51E7FF45B0019C772 /* MediaPlayer.framework */; };
 		1F9FE9C81E8002140019C772 /* DLMPlayerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F9FE9C71E8002140019C772 /* DLMPlayerModel.swift */; };
@@ -138,7 +137,6 @@
 		1F9FE8E31E7FA1E70019C772 /* Common.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Common.swift; sourceTree = "<group>"; };
 		1F9FE8E51E7FA34A0019C772 /* DLMPlayerControlView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DLMPlayerControlView.swift; sourceTree = "<group>"; };
 		1F9FE8E71E7FA4790019C772 /* ASValueTrackingSlider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ASValueTrackingSlider.swift; sourceTree = "<group>"; };
-		1F9FE9C11E7FC1A30019C772 /* ASValuePopUpView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ASValuePopUpView.swift; sourceTree = "<group>"; };
 		1F9FE9C31E7FEECF0019C772 /* DLMPlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DLMPlayerView.swift; sourceTree = "<group>"; };
 		1F9FE9C51E7FF45B0019C772 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		1F9FE9C71E8002140019C772 /* DLMPlayerModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DLMPlayerModel.swift; sourceTree = "<group>"; };
@@ -208,7 +206,6 @@
 				1F9FE8E51E7FA34A0019C772 /* DLMPlayerControlView.swift */,
 				1F9FE9D21E80F4830019C772 /* DLMPlayerControlView+Delegate.swift */,
 				1F9FE8E71E7FA4790019C772 /* ASValueTrackingSlider.swift */,
-				1F9FE9C11E7FC1A30019C772 /* ASValuePopUpView.swift */,
 				1F9FE8E11E7F9F1F0019C772 /* DLMBrightnessView.swift */,
 				1F9FE8E31E7FA1E70019C772 /* Common.swift */,
 				1F9FE9E91E8245DF0019C772 /* 1.png */,
@@ -536,7 +533,6 @@
 			files = (
 				1F9FE8E41E7FA1E70019C772 /* Common.swift in Sources */,
 				1F9FE8E81E7FA4790019C772 /* ASValueTrackingSlider.swift in Sources */,
-				1F9FE9C21E7FC1A30019C772 /* ASValuePopUpView.swift in Sources */,
 				1F9FE9C41E7FEECF0019C772 /* DLMPlayerView.swift in Sources */,
 				1F9FE8671E7F99410019C772 /* ViewController.swift in Sources */,
 				1F9FE9C81E8002140019C772 /* DLMPlayerModel.swift in Sources */,

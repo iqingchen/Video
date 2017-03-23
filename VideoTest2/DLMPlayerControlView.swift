@@ -53,9 +53,39 @@ class DLMPlayerControlView: UIView {
         return progressView
     }()
     /** 滑杆 */
-//    var videoSlider : ASValueTrackingSlider!
+    lazy var videoSlider : ASValueTrackingSlider =   {
+        let slider = ASValueTrackingSlider()
+        slider.popUpViewCornerRadius = 0.0
+        slider.popUpViewColor = RGBA(r: 19, g: 19, b: 9, a: 1)
+        slider.popUpViewArrowLength = 8
+        
+        slider.setThumbImage(UIImage(named: "ZFPlayer_slider"), for: .normal)
+        slider.maximumValue = 1
+        slider.minimumTrackTintColor = UIColor.white
+        slider.maximumTrackTintColor = UIColor(red: 0.5, green: 0.5, blue: 0.5, alpha: 0.5)
+        // slider开始滑动事件
+        slider.addTarget(self, action: #selector(progressSliderTouchBegan(sender:)), for: .touchDown)
+        // slider滑动中事件
+        slider.addTarget(self, action: #selector(progressSliderValueChanged(sender:)), for: .valueChanged)
+        // slider结束滑动事件
+        slider.addTarget(self, action: #selector(progressSliderTouchEnded(sender:)), for: .touchUpInside)
+        slider.addTarget(self, action: #selector(progressSliderTouchEnded(sender:)), for: .touchCancel)
+        slider.addTarget(self, action: #selector(progressSliderTouchEnded(sender:)), for: .touchUpOutside)
+//        slider.addTarget(self, action: #selector(progressSliderTouchEnded(sender:)), for: .touchUpInside | .touchCancel | .touchUpOutside)
+        let sliderTap = UITapGestureRecognizer(target: self, action: #selector(tapSliderAction(tap:)))
+        slider.addGestureRecognizer(sliderTap)
+        
+        let panRecognizer = UIPanGestureRecognizer(target: self, action: #selector(panRecognizer(sender:)))
+        panRecognizer.delegate = self
+        panRecognizer.maximumNumberOfTouches = 1
+        panRecognizer.delaysTouchesBegan = true
+        panRecognizer.delaysTouchesEnded = true
+        panRecognizer.cancelsTouchesInView = true
+        slider.addGestureRecognizer(panRecognizer)
+        return slider
+    }()
     /** 全屏按钮 */
-    var fullScreenBtn : UIButton = {
+    lazy var fullScreenBtn : UIButton = {
         let btn = UIButton(type: UIButtonType.custom)
         btn.setImage(UIImage(named: "ZFPlayer_fullscreen"), for: .normal)
         btn.setImage(UIImage(named: "ZFPlayer_shrinkscreen"), for: .selected)
@@ -120,8 +150,6 @@ class DLMPlayerControlView: UIView {
         btn.backgroundColor = RGBA(r: 0, g: 0, b: 0, a: 0.7)
         return btn
     }()
-    /** 分辨率的View */
-    var resolutionView : UIView!
     /** 播放按钮 */
     var playeBtn : UIButton = {
         let btn = UIButton(type: UIButtonType.custom)
@@ -186,13 +214,13 @@ class DLMPlayerControlView: UIView {
     /** 显示控制层 */
     var isShowing : Bool!
     /** 小屏播放 */
-    var isShrink : Bool!
+    var isShrink : Bool = false
     /** 在cell上播放 */
     var cellVideo : Bool!
     /** 是否拖拽slider控制播放进度 */
-    var dragged : Bool!
+    var dragged : Bool = false
     /** 是否播放结束 */
-    var playeEnd : Bool!
+    var playeEnd : Bool = false
     /** 是否全屏播放 */
     var isFullScreen : Bool!
     
@@ -205,7 +233,22 @@ class DLMPlayerControlView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        self.layoutIfNeeded()
+        
+        self.dlm_playerCancelAutoFadeOutControlView()
+        if !self.isShrink && self.playeEnd {
+            // 只要屏幕旋转就显示控制层
+            self.dlm_playerShowControlView()
+        }
+        let currentOrientation = UIApplication.shared.statusBarOrientation
+        if currentOrientation == .portrait {
+            self.setOrientationPortraitConstraint()
+        }else {
+            self.setOrientationLandscapeConstraint()
+        }
+    }
     
 }
 
@@ -231,7 +274,7 @@ extension DLMPlayerControlView {
         bottomImageView.addSubview(startBtn)
         bottomImageView.addSubview(currentTimeLabel)
         bottomImageView.addSubview(progressView)
-//        bottomImageView.addSubview(videoSlider)
+        bottomImageView.addSubview(videoSlider)
         bottomImageView.addSubview(fullScreenBtn)
         bottomImageView.addSubview(totalTimeLabel)
         
@@ -320,12 +363,12 @@ extension DLMPlayerControlView {
             make.trailing.equalTo(totalTimeLabel.snp.leading).offset(-4)
             make.centerY.equalTo(startBtn.snp.centerY)
         }
-//        videoSlider.snp.makeConstraints { (make) in
-//            make.leading.equalTo(currentTimeLabel.snp.trailing).offset(4)
-//            make.trailing.equalTo(totalTimeLabel.snp.leading).offset(-4)
-//            make.centerY.equalTo(currentTimeLabel.snp.centerY).offset(-1)
-//            make.height.equalTo(30)
-//        }
+        videoSlider.snp.makeConstraints { (make) in
+            make.leading.equalTo(currentTimeLabel.snp.trailing).offset(4)
+            make.trailing.equalTo(totalTimeLabel.snp.leading).offset(-4)
+            make.centerY.equalTo(currentTimeLabel.snp.centerY).offset(-1)
+            make.height.equalTo(30)
+        }
         lockBtn.snp.makeConstraints { (make) in
             make.leading.equalTo(self.snp.leading).offset(15)
             make.centerY.equalTo(self.snp.centerY)
@@ -454,19 +497,35 @@ extension DLMPlayerControlView {
     }
     
     @objc func playBtnClick(btn: UIButton) {
-        
+        btn.isSelected = !btn.isSelected
+        delegate?.dlm_controlViewPlayAction(controlView: self, btn: btn)
     }
     func backBtnClick(btn: UIButton) {
-        
+        // 状态条的方向旋转的方向,来判断当前屏幕的方向
+        let orientation = UIApplication.shared.statusBarOrientation
+        // 在cell上并且是竖屏时候响应关闭事件
+        delegate?.dlm_controlViewBackAction(controlView: self, btn: btn)
+//        UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+//        // 在cell上并且是竖屏时候响应关闭事件
+//        if (self.isCellVideo && orientation == UIInterfaceOrientationPortrait) {
+//            if ([self.delegate respondsToSelector:@selector(zf_controlView:closeAction:)]) {
+//                [self.delegate zf_controlView:self closeAction:sender];
+//            }
+//        } else {
+//            if ([self.delegate respondsToSelector:@selector(zf_controlView:backAction:)]) {
+//                [self.delegate zf_controlView:self backAction:sender];
+//            }
+//        }
     }
     func lockScrrenBtnClick(btn: UIButton) {
         
     }
     func closeBtnClick(btn: UIButton)  {
-        
+        delegate?.dlm_controlViewCloseAction(controlView: self, btn: btn)
     }
     func fullScreenBtnClick(btn: UIButton) {
-        
+        btn.isSelected = !btn.isSelected
+        delegate?.dlm_controlViewFullScreenAction(controlView: self, btn: btn)
     }
     func repeatBtnClick(btn: UIButton)  {
         
@@ -475,7 +534,7 @@ extension DLMPlayerControlView {
         
     }
     func resolutionBtnClick(btn: UIButton)  {
-        
+        btn.isSelected = !btn.isSelected
     }
     func centerPlayBtnClick(btn: UIButton) {
     }
@@ -520,6 +579,57 @@ extension DLMPlayerControlView {
         NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(self.dlm_playerHideControlView), object: nil)
         self.perform(#selector(self.dlm_playerHideControlView), with: nil, afterDelay: TimeInterval(DLMPlayerAnimationTimeInterval))
     }
+    
+    //关于slider
+    @objc fileprivate func progressSliderTouchBegan(sender: ASValueTrackingSlider) {
+        self.dlm_playerCancelAutoFadeOutControlView()
+        self.delegate?.dlm_controlViewProgressSliderTouchBegan(controlView: self, slider: sender)
+    }
+    @objc fileprivate func progressSliderValueChanged(sender: ASValueTrackingSlider) {
+        self.delegate?.dlm_controlViewProgressSliderValueChanged(controlView: self, slider: sender)
+    }
+    @objc fileprivate func progressSliderTouchEnded(sender: ASValueTrackingSlider) {
+        self.isShowing = true
+        self.delegate?.dlm_controlViewProgressSliderTouchEnded(controlView: self, slider: sender)
+    }
+    /**
+     *  UISlider TapAction
+     */
+    @objc fileprivate func tapSliderAction(tap: UITapGestureRecognizer) {
+        if let tapVeiw = tap.view, tapVeiw.isKind(of: UISlider.self) {
+            let slider = tapVeiw as! UISlider
+            let point = tap.location(in: slider)
+            let length = slider.frame.size.width
+            //// 视频跳转的value
+            let tapValue = point.x / length
+            delegate?.dlm_controlViewProgressSliderTap(controlView: self, value: tapValue)
+        }
+    }
+    // 不做处理，只是为了滑动slider其他地方不响应其他手势
+    @objc fileprivate func panRecognizer(sender: UIPanGestureRecognizer) {}
+    
+    /**
+     slider滑块的bounds
+     */
+    func thumbRect() -> CGRect {
+        return videoSlider.thumbRect(forBounds: videoSlider.bounds, trackRect: videoSlider.trackRect(forBounds: videoSlider.bounds), value: self.videoSlider.value)
+    }
+
+}
+
+//MARK: - UIGestureRecognizer Delegate
+extension DLMPlayerControlView : UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        let rect = self.thumbRect()
+        let point = touch.location(in: self.videoSlider)
+        if let touchView = touch.view, touchView.isKind(of: UISlider.self) {
+            // 如果在滑块上点击就不响应pan手势
+            if point.x <= rect.origin.x + rect.size.width && point.x >= rect.origin.x {
+                return false
+            }
+        }
+        return true
+    }
 }
 
 //MARK: - 暴露给外界的方法
@@ -562,6 +672,11 @@ extension DLMPlayerControlView {
             self.placeholderImageView.alpha = 0
         }
     }
+    /** progress显示缓冲进度 */
+    func dlm_playerSetProgress(progress: Float) {
+        self.progressView.setProgress(progress, animated: false)
+    }
+
     /** 视频加载失败 */
     func dlm_playerItemStatusFailed(error: Error) {
         failBtn.isHidden = false

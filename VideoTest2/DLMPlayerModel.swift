@@ -14,7 +14,14 @@ class DLMPlayerModel: NSObject {
     /** 视频URL */
     var videoURL : NSURL?
     /** 视频封面本地图片 */
-    var placeholderImage : UIImage?
+    var placeholderImage : UIImage?{
+        willSet(newValue){
+            
+        }
+        didSet{
+            
+        }
+    }
     /**
      * 视频封面网络图片url
      * 如果和本地图片同时设置，则忽略本地图片，显示网络图片
