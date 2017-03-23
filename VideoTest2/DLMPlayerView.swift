@@ -561,7 +561,7 @@ extension DLMPlayerView {
                         self.addGestureRecognizer(panRecognizer)
                         //跳到xx秒播放视频
                         if (self.seekTime != nil) {
-//                            self.
+                            self.seekToTime(dragedSeconds: self.seekTime!, completionHandler: nil)
                         }
                         self.player.isMuted = self.mute
                     }else if item.status == .failed {
@@ -676,7 +676,7 @@ extension DLMPlayerView {
                 return
             }
             isDragged = true
-            self.controlView?.dlm_playerDraggedTime(draggedTime: Int(sumTime), totalTime: Int(totalDuration), forawrd: style, preview: false)
+            self.controlView?.dlm_playerDraggedTime(draggedTime: sumTime, totalTime: totalDuration, forawrd: style, preview: false)
         }
     }
     //pan垂直移动的方法
@@ -873,7 +873,7 @@ extension DLMPlayerView : DLMPlayerControlViewDelegate {
             let dragedSeconds = floorf(Float(totalTime) * slider.value)
             //转换成CMTime才能给player来控制播放进度
 //            let dragedCMTime = CMTimeMake(Int64(dragedSeconds), 1)
-            controlView.dlm_playerDraggedTime(draggedTime: Int(dragedSeconds), totalTime: totalTime, forawrd: style, preview: false)
+            controlView.dlm_playerDraggedTime(draggedTime: dragedSeconds, totalTime: Float(totalTime), forawrd: style, preview: false)
             
             if totalTime > 0 {
                 // 当总时长 > 0时候才能拖动slider

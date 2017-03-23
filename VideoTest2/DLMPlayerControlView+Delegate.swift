@@ -29,10 +29,14 @@ extension DLMPlayerControlView {
             self.videoSlider.value = value
             self.bottomProgressView.progress = value
             // 更新当前播放时间
-            self.currentTimeLabel.text = "\(proMin):\(proSec)"
+            let proMins = String(format: "%02zd", proMin)
+            let proSecs = String(format: "%02zd", proSec)
+            self.currentTimeLabel.text = "\(proMins):\(proSecs)"
         }
         // 更新总时间
-        self.totalTimeLabel.text = "\(durMin):\(durSec)"
+        let durMins = String(format: "%02zd", durMin)
+        let durSecs = String(format: "%02zd", durSec)
+        self.totalTimeLabel.text = "\(durMins):\(durSecs)"
     }
     /**
      * 拖拽快进 快退
@@ -42,19 +46,23 @@ extension DLMPlayerControlView {
      * @param forawrd     是否是快进
      * @param preview     是否有预览图
      */
-    func dlm_playerDraggedTime(draggedTime: Int, totalTime: Int, forawrd: Bool, preview: Bool) {
+    func dlm_playerDraggedTime(draggedTime: Float, totalTime: Float, forawrd: Bool, preview: Bool) {
         // 快进快退时候停止菊花
         self.activity.stopAnimating()
         // 拖拽的时长
         let proMin = draggedTime / 60 //当前秒
-        let proSec = draggedTime % 60 //当前分钟
+        let proSec = Int(draggedTime) % 60 //当前分钟
         // duration 总时长
         let durMin = totalTime / 60 //总秒
-        let durSec = totalTime % 60 //总分钟
+        let durSec = Int(totalTime) % 60 //总分钟
         
-        let currentTimeStr = "\(proMin):\(proSec)"
-        let totalTimeStr = "\(durMin):\(durSec)"
-        let draggedValue = Float(draggedTime / totalTime)
+        let proMins = String(format: "%02zd", proMin)
+        let proSecs = String(format: "%02zd", proSec)
+        let currentTimeStr = "\(proMins):\(proSecs)"
+        let durMins = String(format: "%02zd", durMin)
+        let durSecs = String(format: "%02zd", durSec)
+        let totalTimeStr = "\(durMins):\(durSecs)"
+        let draggedValue = draggedTime / totalTime
         let timeStr = "\(currentTimeStr) / \(totalTimeStr)"
         
         // 显示、隐藏预览窗
