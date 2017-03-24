@@ -99,6 +99,30 @@ extension DLMPlayerControlView {
         // 滑动结束延时隐藏controlView
         self.autoFadeOutControlView()
     }
+    /** 重置ControlView */
+    func dlm_playerResetControlView() {
+        activity.stopAnimating()
+        
+        //        self.videoSlider.value           = 0
+        self.bottomProgressView.progress = 0
+        self.progressView.progress       = 0
+        self.currentTimeLabel.text       = "00:00"
+        self.totalTimeLabel.text         = "00:00"
+        self.fastView.isHidden             = true
+        self.repeatBtn.isHidden            = true
+        self.playeBtn.isHidden             = true
+        //        self.resolutionView.isHidden       = true
+        self.failBtn.isHidden              = true
+        self.backgroundColor             = UIColor.clear
+        self.downLoadBtn.isEnabled         = true
+        self.isShrink                      = false
+        self.isShowing                     = false
+        self.playeEnd                    = false
+        //        self.lockBtn.isHidden              = !self.isFullScreen;
+        self.failBtn.isHidden              = true
+        self.placeholderImageView.alpha  = 1;
+    }
+
 }
 
 protocol DLMPlayerControlViewDelegate {

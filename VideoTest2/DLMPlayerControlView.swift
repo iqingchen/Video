@@ -265,6 +265,9 @@ extension DLMPlayerControlView {
         addNotification()
         listeningRotating()
         onDeviceOrientationChange()
+        
+        //添加按钮事件
+        setBtnAction()
     }
     fileprivate func addSubViews()  {
         self.addSubview(placeholderImageView)
@@ -359,7 +362,7 @@ extension DLMPlayerControlView {
             make.width.equalTo(43)
         }
         progressView.snp.makeConstraints { (make) in
-            make.leading.equalTo(currentTimeLabel.snp.leading).offset(4)
+            make.leading.equalTo(currentTimeLabel.snp.trailing).offset(4)
             make.trailing.equalTo(totalTimeLabel.snp.leading).offset(-4)
             make.centerY.equalTo(startBtn.snp.centerY)
         }
@@ -419,28 +422,6 @@ extension DLMPlayerControlView {
             make.leading.trailing.equalTo(0)
             make.bottom.equalTo(0)
             }
-    }
-    fileprivate func dlm_playerResetControlView() {
-        activity.stopAnimating()
-        
-//        self.videoSlider.value           = 0
-        self.bottomProgressView.progress = 0
-        self.progressView.progress       = 0
-        self.currentTimeLabel.text       = "00:00"
-        self.totalTimeLabel.text         = "00:00"
-        self.fastView.isHidden             = true
-        self.repeatBtn.isHidden            = true
-        self.playeBtn.isHidden             = true
-//        self.resolutionView.isHidden       = true
-        self.failBtn.isHidden              = true
-        self.backgroundColor             = UIColor.clear
-        self.downLoadBtn.isEnabled         = true
-        self.isShrink                      = false
-        self.isShowing                     = false
-        self.playeEnd                    = false
-//        self.lockBtn.isHidden              = !self.isFullScreen;
-        self.failBtn.isHidden              = true
-        self.placeholderImageView.alpha  = 1;
     }
     fileprivate func addNotification() {
         // app退到后台
@@ -528,7 +509,10 @@ extension DLMPlayerControlView {
         delegate?.dlm_controlViewFullScreenAction(controlView: self, btn: btn)
     }
     func repeatBtnClick(btn: UIButton)  {
-        
+        // 重置控制层View
+        self.dlm_playerResetControlView()
+        self.dlm_playerShowControlView()
+        self.delegate?.dlm_controlViewRepeatPlayAction(controlView: self, btn: btn)
     }
     func downloadBtnClick(btn: UIButton) {
         

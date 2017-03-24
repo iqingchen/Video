@@ -522,20 +522,16 @@ extension DLMPlayerView {
     }
     //播放完了
     @objc fileprivate func moviePlayDidEnd(notification: NSNotification) {
-        if self.state == DLMPlayerState.Stopped {
-            playDidEnd = true
-//            self.controlView
-//            self.state = ZFPlayerStateStopped;
-            //    if (self.isBottomVideo && !self.isFullScreen) { // 播放完了，如果是在小屏模式 && 在bottom位置，直接关闭播放器
-            //    self.repeatToPlay = NO;
-            //    self.playDidEnd   = NO;
-            //    [self resetPlayer];
-            //    } else {
-            //    if (!self.isDragged) { // 如果不是拖拽中，直接结束播放
-            //    self.playDidEnd = YES;
-            //    [self.controlView zf_playerPlayEnd];
-            //    }
-
+        setNewState(newState: .Stopped)
+        if self.isBottomVideo && !self.isFullScreen {// 播放完了，如果是在小屏模式 && 在bottom位置，直接关闭播放器
+            repeatToPlay = false
+            playDidEnd = false
+            self.resetPlayer()
+        }else {
+            if !self.isDragged {// 如果不是拖拽中，直接结束播放
+                self.playDidEnd = true
+                self.controlView?.dlm_playerPlayEnd()
+            }
         }
     }
     
@@ -784,6 +780,93 @@ extension DLMPlayerView {
         self.isPauseByUser = true
         player.pause()
     }
+    /**
+     *  重置player
+     */
+    func resetPlayer() {
+        // 改为为播放完
+        self.playDidEnd         = false
+        self.playerItem         = nil
+        self.didEnterBackground = false
+        // 视频跳转秒数置0
+        self.seekTime           = 0
+        self.isAutoPlay = false
+        if (self.timeObserve != nil) {
+            self.player.removeTimeObserver(timeObserve!)
+            self.timeObserve = nil
+        }
+        // 移除通知
+        NotificationCenter.default.removeObserver(self)
+        // 暂停
+        self.pause()
+        // 移除原来的layer
+        self.playerLayer?.removeFromSuperlayer()
+        // 替换PlayerItem为nil
+        self.player.replaceCurrentItem(with: nil)
+        // 把player置为nil
+//        self.imageGenerator = nil
+        self.player         = nil
+        self.controlView?.dlm_playerResetControlView()
+        self.controlView   = nil
+        // 非重播时，移除当前playerView
+        if !self.repeatToPlay {
+            self.removeFromSuperview()
+        }
+        // 底部播放video改为NO
+        self.isBottomVideo = false
+        // cell上播放视频 && 不是重播时
+        //    if (self.isCellVideo && !self.repeatToPlay) {
+        //    // vicontroller中页面消失
+        //    self.viewDisappear = YES;
+        //    self.isCellVideo   = NO;
+        //    self.tableView     = nil;
+        //    self.indexPath     = nil;
+        //    }
+
+    }
+//    - (void)resetPlayer {
+//    // 改为为播放完
+//    self.playDidEnd         = NO;
+//    self.playerItem         = nil;
+//    self.didEnterBackground = NO;
+//    // 视频跳转秒数置0
+//    self.seekTime           = 0;
+//    self.isAutoPlay         = NO;
+//    if (self.timeObserve) {
+//    [self.player removeTimeObserver:self.timeObserve];
+//    self.timeObserve = nil;
+//    }
+//    // 移除通知
+//    [[NSNotificationCenter defaultCenter] removeObserver:self];
+//    // 暂停
+//    [self pause];
+//    // 移除原来的layer
+//    [self.playerLayer removeFromSuperlayer];
+//    // 替换PlayerItem为nil
+//    [self.player replaceCurrentItemWithPlayerItem:nil];
+//    // 把player置为nil
+//    self.imageGenerator = nil;
+//    self.player         = nil;
+//    if (self.isChangeResolution) { // 切换分辨率
+//    [self.controlView zf_playerResetControlViewForResolution];
+//    self.isChangeResolution = NO;
+//    }else { // 重置控制层View
+//    [self.controlView zf_playerResetControlView];
+//    }
+//    self.controlView   = nil;
+//    // 非重播时，移除当前playerView
+//    if (!self.repeatToPlay) { [self removeFromSuperview]; }
+//    // 底部播放video改为NO
+//    self.isBottomVideo = NO;
+//    // cell上播放视频 && 不是重播时
+//    if (self.isCellVideo && !self.repeatToPlay) {
+//    // vicontroller中页面消失
+//    self.viewDisappear = YES;
+//    self.isCellVideo   = NO;
+//    self.tableView     = nil;
+//    self.indexPath     = nil;
+//    }
+//    }
 }
 
 //MARK: - DLMPlayerControlViewDelegate代理方法
@@ -830,7 +913,16 @@ extension DLMPlayerView : DLMPlayerControlViewDelegate {
         
     }
     func dlm_controlViewRepeatPlayAction(controlView: DLMPlayerControlView, btn: UIButton) {
-        
+        // 没有播放完
+        self.playDidEnd = false
+        // 重播改为NO
+        self.repeatToPlay = false
+        self.seekToTime(dragedSeconds: 0, completionHandler: nil)
+        if self.videoURL?.scheme == "file" {
+            setNewState(newState: .Playing)
+        }else {
+            setNewState(newState: .Buffering)
+        }
     }
     func dlm_controlViewFailAction(controlView: DLMPlayerControlView, btn: UIButton) {
         
