@@ -91,29 +91,18 @@ class DLMPlayerControlView: UIView {
         btn.setImage(UIImage(named: "ZFPlayer_shrinkscreen"), for: .selected)
         return btn
     }()
-    /** 锁定屏幕方向按钮 */
-    var lockBtn : UIButton = {
-        let btn = UIButton(type: UIButtonType.custom)
-        btn.setImage(UIImage(named: "ZFPlayer_unlock-nor"), for: .normal)
-        btn.setImage(UIImage(named: "ZFPlayer_lock-nor"), for: .selected)
-        return btn
-    }()
     /** 系统菊花 */
     var activity : NVActivityIndicatorView = {
         let frame = CGRect(x: 0, y: 0, width: 0, height: 0)
         let activity = NVActivityIndicatorView(frame: frame)
+        activity.type             = NVActivityIndicatorType.ballRotateChase
+        activity.color            = UIColor.white
         return activity
     }()
     /** 返回按钮*/
     var backBtn : UIButton = {
         let btn = UIButton(type: UIButtonType.custom)
         btn.setImage(UIImage(named: "ZFPlayer_back_full"), for: .normal)
-        return btn
-    }()
-    /** 关闭按钮*/
-    var closeBtn : UIButton = {
-        let btn = UIButton(type: UIButtonType.custom)
-        btn.setImage(UIImage(named: "ZFPlayer_close"), for: .normal)
         return btn
     }()
     /** 重播按钮 */
@@ -282,9 +271,8 @@ extension DLMPlayerControlView {
         bottomImageView.addSubview(totalTimeLabel)
         
         topImageView.addSubview(downLoadBtn)
-        self.addSubview(lockBtn)
         topImageView.addSubview(backBtn)
-//        self.addSubview(activity)
+        self.addSubview(activity)
         self.addSubview(repeatBtn)
         self.addSubview(playeBtn)
         self.addSubview(failBtn)
@@ -296,19 +284,12 @@ extension DLMPlayerControlView {
         
         topImageView.addSubview(resolutionBtn)
         topImageView.addSubview(titleLabel)
-        self.addSubview(closeBtn)
         self.addSubview(bottomProgressView)
     }
     fileprivate func makeSubViewsConstraints() {
         self.layoutIfNeeded()
         placeholderImageView.snp.makeConstraints { (make) in
             make.edges.equalTo(UIEdgeInsets.zero)
-        }
-        
-        closeBtn.snp.makeConstraints { (make) in
-            make.trailing.equalTo(self.snp.trailing).offset(7)
-            make.top.equalTo(self).offset(-7)
-            make.width.height.equalTo(20)
         }
         topImageView.snp.makeConstraints { (make) in
             make.leading.trailing.equalTo(self)
@@ -372,11 +353,6 @@ extension DLMPlayerControlView {
             make.centerY.equalTo(currentTimeLabel.snp.centerY).offset(-1)
             make.height.equalTo(30)
         }
-        lockBtn.snp.makeConstraints { (make) in
-            make.leading.equalTo(self.snp.leading).offset(15)
-            make.centerY.equalTo(self.snp.centerY)
-            make.width.height.equalTo(32)
-        }
         repeatBtn.snp.makeConstraints { (make) in
             make.center.equalTo(self)
         }
@@ -384,15 +360,10 @@ extension DLMPlayerControlView {
             make.width.height.equalTo(50)
             make.center.equalTo(self)
         }
-//        activity.snp.makeConstraints { (make) in
-//            make.center.equalTo(self)
-//            make.width.height.equalTo(45)
-//        }
-//
-//        [self.activity mas_makeConstraints:^(MASConstraintMaker *make) {
-//            make.center.equalTo(self);
-//            make.width.with.height.mas_equalTo(45);
-//            }];
+        activity.snp.makeConstraints { (make) in
+            make.center.equalTo(self)
+            make.width.height.equalTo(30)
+        }
         failBtn.snp.makeConstraints { (make) in
             make.center.equalTo(self)
             make.width.equalTo(130)
@@ -467,8 +438,6 @@ extension DLMPlayerControlView {
     func setBtnAction() {
         startBtn.addTarget(self, action: #selector(self.playBtnClick(btn:)), for: .touchUpInside)
         backBtn.addTarget(self, action: #selector(self.backBtnClick(btn:)), for: .touchUpInside)
-        lockBtn.addTarget(self, action: #selector(self.lockScrrenBtnClick(btn:)), for: .touchUpInside)
-        closeBtn.addTarget(self, action: #selector(self.closeBtnClick(btn:)), for: .touchUpInside)
         fullScreenBtn.addTarget(self, action: #selector(self.fullScreenBtnClick(btn:)), for: .touchUpInside)
         repeatBtn.addTarget(self, action: #selector(self.repeatBtnClick(btn:)), for: .touchUpInside)
         downLoadBtn.addTarget(self, action: #selector(self.downloadBtnClick(btn:)), for: .touchUpInside)
@@ -497,12 +466,6 @@ extension DLMPlayerControlView {
 //                [self.delegate zf_controlView:self backAction:sender];
 //            }
 //        }
-    }
-    func lockScrrenBtnClick(btn: UIButton) {
-        
-    }
-    func closeBtnClick(btn: UIButton)  {
-        delegate?.dlm_controlViewCloseAction(controlView: self, btn: btn)
     }
     func fullScreenBtnClick(btn: UIButton) {
         btn.isSelected = !btn.isSelected
@@ -533,7 +496,6 @@ extension DLMPlayerControlView {
         self.backgroundColor = RGBA(r: 0, g: 0, b: 0, a: 0)
         self.topImageView.alpha = self.playeEnd == true ? 1 : 0
         self.bottomImageView.alpha = 0
-        self.lockBtn.alpha = 0
         self.bottomProgressView.alpha = 1
         // 隐藏resolutionView
         resolutionBtn.isSelected = true
@@ -543,15 +505,9 @@ extension DLMPlayerControlView {
 //        }
     }
     fileprivate func showControlView() {
-        if self.lockBtn.isSelected {
-            self.topImageView.alpha = 0
-            self.bottomImageView.alpha = 0
-        }else {
-            self.topImageView.alpha = 1
-            self.bottomImageView.alpha = 1
-        }
+        self.topImageView.alpha = 1
+        self.bottomImageView.alpha = 1
         self.backgroundColor = RGBA(r: 0, g: 0, b: 0, a: 0.3)
-        self.lockBtn.alpha = 1
 //        if (self.isCellVideo) {
             //    self.shrink                = NO;
             //    }

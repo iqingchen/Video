@@ -130,14 +130,10 @@ protocol DLMPlayerControlViewDelegate {
 //    func dlm_playerDownloadBtnState(state: Bool)
     /**  返回按钮事件 */
     func dlm_controlViewBackAction(controlView: DLMPlayerControlView, btn: UIButton)
-    /**  cell播放中小屏状态 关闭按钮事件 */
-    func dlm_controlViewCloseAction(controlView: DLMPlayerControlView, btn: UIButton)
     /** 播放按钮事件 */
     func dlm_controlViewPlayAction(controlView: DLMPlayerControlView, btn: UIButton)
     /** 全屏按钮事件 */
     func dlm_controlViewFullScreenAction(controlView: DLMPlayerControlView, btn: UIButton)
-    /** 锁定屏幕方向按钮时间 */
-    func dlm_controlViewLockScreenAction(controlView: DLMPlayerControlView, btn: UIButton)
     /** 重播按钮事件 */
     func dlm_controlViewRepeatPlayAction(controlView: DLMPlayerControlView, btn: UIButton)
     /** 中间播放按钮事件 */
