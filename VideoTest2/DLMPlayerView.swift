@@ -9,6 +9,7 @@
 import UIKit
 import AVFoundation
 import MediaPlayer
+import SnapKit
 
 enum DLMPlayerLayerGravity : Int{
     case Resize = 0        // 非均匀模式。两个维度完全填充至整个视图区域
@@ -86,7 +87,7 @@ class DLMPlayerView: UIView {
     /** 播放完了*/
     var playDidEnd : Bool!
     /** 进入后台*/
-    var didEnterBackground : Bool!
+    var didEnterBackground : Bool = false
     /** 是否自动播放 */
     var isAutoPlay : Bool!
     /** 单击 */
@@ -121,6 +122,13 @@ class DLMPlayerView: UIView {
 //    @property (nonatomic, assign) BOOL                   isChangeResolution;
 //    /** 是否正在拖拽 */
     var isDragged : Bool = false
+    
+    //用来全屏的时候使用
+    fileprivate lazy var keyWindow          : UIWindow = {
+        let keyWindow = UIApplication.shared.keyWindow
+        keyWindow?.backgroundColor = UIColor.red
+        return keyWindow!
+    }()
 
     var controlView : DLMPlayerControlView?
     var playerModel : DLMPlayerModel?
@@ -391,28 +399,55 @@ extension DLMPlayerView {
         }
         return result
     }
+    
     /** 全屏 */
-   
     func _fullScreenAction() {
-//        - (void)_fullScreenAction {
-//            if (ZFPlayerShared.isLockScreen) {
-//                [self unLockTheScreen];
-//                return;
-//            }
-//            if (self.isFullScreen) {
-//                [self interfaceOrientation:UIInterfaceOrientationPortrait];
-//                self.isFullScreen = NO;
-//                return;
-//            } else {
-//                UIDeviceOrientation orientation = [UIDevice currentDevice].orientation;
-//                if (orientation == UIDeviceOrientationLandscapeRight) {
-//                    [self interfaceOrientation:UIInterfaceOrientationLandscapeLeft];
-//                } else {
-//                    [self interfaceOrientation:UIInterfaceOrientationLandscapeRight];
-//                }
-//                self.isFullScreen = YES;
-//            }
-//        }
+        if isFullScreen {
+            //设置竖屏
+            self.setVideoOrientationPortraitConstraint()
+        } else {
+            //设置横屏
+            self.setVideoOrientationLandscapeConstraint()
+        }
+    }
+    
+    func setVideoOrientationPortraitConstraint() {
+        self.addPlayerToFatherView(view: (self.playerModel?.fatherView)!)
+        
+        UIView.beginAnimations(nil, context: nil)
+        UIView.setAnimationDuration(0.3)
+        // 更改了状态条的方向,但是设备方向UIInterfaceOrientation还是正方向的,这就要设置给你播放视频的视图的方向设置旋转
+        // 给你的播放视频的view视图设置旋转
+        self.transform = CGAffineTransform.identity
+        // 开始旋转
+        UIView.commitAnimations()
+        self.controlView?.layoutIfNeeded()
+        self.controlView?.setNeedsLayout()
+        
+        self.isFullScreen = false
+    }
+    
+    func setVideoOrientationLandscapeConstraint() {
+        self.removeFromSuperview()
+        let brightnessView = DLMBrightnessView.sharedBrightnessView
+        UIApplication.shared.keyWindow?.insertSubview(self, belowSubview: brightnessView)
+        self.snp.remakeConstraints { (make) in
+            make.width.equalTo(kScreenHeight)
+            make.height.equalTo(kScreenWidth)
+            make.center.equalTo(UIApplication.shared.keyWindow!)
+        }
+        UIView.beginAnimations(nil, context: nil)
+        UIView.setAnimationDuration(0.3)
+        // 更改了状态条的方向,但是设备方向UIInterfaceOrientation还是正方向的,这就要设置给你播放视频的视图的方向设置旋转
+        // 给你的播放视频的view视图设置旋转
+        self.transform = CGAffineTransform(rotationAngle: CGFloat(M_PI_2))
+        // 开始旋转
+        UIView.commitAnimations()
+        self.controlView?.layoutIfNeeded()
+        self.controlView?.setNeedsLayout()
+        UIApplication.shared.isStatusBarHidden = true
+        
+        self.isFullScreen = true
     }
 
 }
@@ -436,11 +471,22 @@ extension DLMPlayerView {
 extension DLMPlayerView {
     // app退到后台
     @objc fileprivate func appDidEnterBackground() {
-        
+        self.didEnterBackground = true
+        player.pause()
+        self.setNewState(newState: .Pause)
+//        self.state                  = DLMPlayerState.Pause
     }
     // app进入前台
     @objc fileprivate func appDidEnterPlayground() {
-    
+        self.didEnterBackground     = false
+        // 根据是否锁定屏幕方向 来恢复单例里锁定屏幕的方向
+//        ZFPlayerShared.isLockScreen = self.isLocked;
+        if !self.isPauseByUser {
+            self.setNewState(newState: .Playing)
+//            self.state = DLMPlayerState.Playing
+            self.isPauseByUser = false
+            self.play()
+        }
     }
     /**
      *  从xx秒开始播放视频跳转
@@ -470,55 +516,6 @@ extension DLMPlayerView {
                 }
             })
         }
-    }
-//    - (void)seekToTime:(NSInteger)dragedSeconds completionHandler:(void (^)(BOOL finished))completionHandler {
-//    if (self.player.currentItem.status == AVPlayerItemStatusReadyToPlay) {
-//    // seekTime:completionHandler:不能精确定位
-//    // 如果需要精确定位，可以使用seekToTime:toleranceBefore:toleranceAfter:completionHandler:
-//    // 转换成CMTime才能给player来控制播放进度
-//    [self.controlView zf_playerActivity:YES];
-//    [self.player pause];
-//    CMTime dragedCMTime = CMTimeMake(dragedSeconds, 1); //kCMTimeZero
-//    __weak typeof(self) weakSelf = self;
-//    [self.player seekToTime:dragedCMTime toleranceBefore:CMTimeMake(1,1) toleranceAfter:CMTimeMake(1,1) completionHandler:^(BOOL finished) {
-//    [weakSelf.controlView zf_playerActivity:NO];
-//    // 视频跳转回调
-//    if (completionHandler) { completionHandler(finished); }
-//    [weakSelf.player play];
-//    weakSelf.seekTime = 0;
-//    weakSelf.isDragged = NO;
-//    // 结束滑动
-//    [weakSelf.controlView zf_playerDraggedEnd];
-//    if (!weakSelf.playerItem.isPlaybackLikelyToKeepUp && !weakSelf.isLocalVideo) { weakSelf.state = ZFPlayerStateBuffering; }
-//    
-//    }];
-//    }
-//    }
-
-    // 屏幕转屏
-    func interfaceOrientation(orientation: UIInterfaceOrientation) {
-        if orientation == .landscapeRight || orientation == .landscapeLeft {
-            // 设置横屏
-            
-        }
-    }
-//    - (void)interfaceOrientation:(UIInterfaceOrientation)orientation {
-//    if (orientation == UIInterfaceOrientationLandscapeRight || orientation == UIInterfaceOrientationLandscapeLeft) {
-//    // 设置横屏
-//    [self setOrientationLandscapeConstraint:orientation];
-//    } else if (orientation == UIInterfaceOrientationPortrait) {
-//    // 设置竖屏
-//    [self setOrientationPortraitConstraint];
-//    }
-//    }
-
-    //屏幕方向发生变化会调用这里
-    @objc fileprivate func onDeviceOrientationChange() {
-        
-    }
-    // 状态条变化通知（在前台播放才去处理）
-    @objc fileprivate func onStatusBarOrientationChange() {
-        
     }
     //播放完了
     @objc fileprivate func moviePlayDidEnd(notification: NSNotification) {
@@ -584,11 +581,157 @@ extension DLMPlayerView {
                     }
                 }
             }
-            
         }
-
     }
 
+    //MARK: -  屏幕转屏
+    func interfaceOrientation(orientation: UIInterfaceOrientation) {
+        if orientation == .landscapeRight || orientation == .landscapeLeft {
+            // 设置横屏
+            self.setOrientationLandscapeConstraint(orientation: orientation)
+        }else if(orientation == .portrait){
+            // 设置竖屏
+            self.setOrientationPortraitConstraint()
+        }
+    }
+    
+    //设置横屏的约束
+    fileprivate func setOrientationLandscapeConstraint(orientation: UIInterfaceOrientation) {
+        self.toOrientation(orientation: orientation)
+        self.isFullScreen = true
+    }
+    //设置竖屏的约束
+    fileprivate func setOrientationPortraitConstraint() {
+        self.addPlayerToFatherView(view: (self.playerModel?.fatherView)!)
+        self.toOrientation(orientation: .portrait)
+        self.isFullScreen = false
+    }
+    
+    fileprivate func toOrientation(orientation: UIInterfaceOrientation) {
+        // 获取到当前状态条的方向
+        let currentOrientation = UIApplication.shared.statusBarOrientation
+        // 判断如果当前方向和要旋转的方向一致,那么不做任何操作
+        if currentOrientation == orientation {
+            return
+        }
+        // 根据要旋转的方向,使用Masonry重新修改限制
+        if orientation != .portrait {
+            // 这个地方加判断是为了从全屏的一侧,直接到全屏的另一侧不用修改限制,否则会出错;
+            if currentOrientation == .portrait {
+                self.removeFromSuperview()
+                let brightnessView = DLMBrightnessView.sharedBrightnessView
+                UIApplication.shared.keyWindow?.insertSubview(self, belowSubview: brightnessView)
+                self.snp.remakeConstraints { (make) in
+                    make.width.equalTo(kScreenHeight)
+                    make.height.equalTo(kScreenWidth)
+                    make.center.equalTo(UIApplication.shared.keyWindow!)
+                }
+            }
+        }
+        // iOS6.0之后,设置状态条的方法能使用的前提是shouldAutorotate为NO,也就是说这个视图控制器内,旋转要关掉;
+        // 也就是说在实现这个方法的时候-(BOOL)shouldAutorotate返回值要为NO
+        UIApplication.shared.setStatusBarOrientation(orientation, animated: false)
+        // 获取旋转状态条需要的时间:
+        UIView.beginAnimations(nil, context: nil)
+        UIView.setAnimationDuration(0.3)
+        // 更改了状态条的方向,但是设备方向UIInterfaceOrientation还是正方向的,这就要设置给你播放视频的视图的方向设置旋转
+        // 给你的播放视频的view视图设置旋转
+        self.transform = CGAffineTransform.identity
+        self.transform = self.getTransformRotationAngle()
+        // 开始旋转
+        UIView.commitAnimations()
+        self.controlView?.layoutIfNeeded()
+        self.controlView?.setNeedsLayout()
+    }
+    /**
+     * 获取变换的旋转角度
+     * @return 角度
+     */
+    fileprivate func getTransformRotationAngle() -> CGAffineTransform{
+        // 状态条的方向已经设置过,所以这个就是你想要旋转的方向
+        let orientation = UIApplication.shared.statusBarOrientation
+        // 根据要进行旋转的方向来计算旋转的角度
+        if orientation == .portrait {
+            return CGAffineTransform.identity
+        }else if orientation == .landscapeLeft {
+            return CGAffineTransform(rotationAngle: -(CGFloat)(M_PI_2))
+        }else if orientation == .landscapeRight {
+            return CGAffineTransform(rotationAngle: CGFloat(M_PI_2))
+        }
+        return CGAffineTransform.identity
+    }
+
+    
+    //屏幕方向发生变化会调用这里
+    @objc fileprivate func onDeviceOrientationChange() {
+        if !(self.player != nil) {
+            return
+        }
+        if self.didEnterBackground == true {
+            return
+        }
+        let orientation = UIDevice.current.orientation
+        let interfaceOrientation = orientation
+        if orientation == .faceUp || orientation == .faceDown || orientation == .unknown {
+            return
+        }
+        switch interfaceOrientation {
+        case .portraitUpsideDown:
+            break
+        case .portrait:
+            if self.isFullScreen == true {
+                self.toOrientation(orientation: .portrait)
+            }
+            break
+        case .landscapeLeft:
+            if self.isFullScreen == false {
+                self.toOrientation(orientation: .landscapeLeft)
+                self.isFullScreen = true
+            }else {
+                self.toOrientation(orientation: .landscapeLeft)
+            }
+            break
+        case .landscapeRight:
+            if self.isFullScreen == false {
+                self.toOrientation(orientation: .landscapeRight)
+                self.isFullScreen = true
+            }else {
+                self.toOrientation(orientation: .landscapeRight)
+            }
+            break
+        default:
+            break
+        }
+    }
+    // 状态条变化通知（在前台播放才去处理）
+    @objc fileprivate func onStatusBarOrientationChange() {
+        if !self.didEnterBackground {
+            // 获取到当前状态条的方向
+            let currentOrientation = UIApplication.shared.statusBarOrientation
+            if currentOrientation == .portrait {
+                self.setOrientationPortraitConstraint()
+                self.brightnessView.removeFromSuperview()
+                UIApplication.shared.keyWindow?.addSubview(self.brightnessView)
+                self.brightnessView.snp.remakeConstraints { (make) in
+                    make.width.height.equalTo(155)
+                    make.leading.equalTo((kScreenWidth - 155) * 0.5)
+                    make.top.equalTo((kScreenHeight - 155) * 0.5)
+                }
+            }else {
+                if currentOrientation == .landscapeRight {
+                    self.setOrientationLandscapeConstraint(orientation: .landscapeRight)
+                }else if currentOrientation == .landscapeLeft {
+                    self.setOrientationLandscapeConstraint(orientation: .landscapeLeft)
+                }
+                self.brightnessView.removeFromSuperview()
+                self.brightnessView.snp.remakeConstraints { (make) in
+                    make.width.height.equalTo(155)
+                    make.center.equalTo(self)
+                }
+            }
+        }
+    }
+    
 }
 
 //MARK: - UIPanGestureRecognizer手势方法
@@ -824,49 +967,6 @@ extension DLMPlayerView {
         //    }
 
     }
-//    - (void)resetPlayer {
-//    // 改为为播放完
-//    self.playDidEnd         = NO;
-//    self.playerItem         = nil;
-//    self.didEnterBackground = NO;
-//    // 视频跳转秒数置0
-//    self.seekTime           = 0;
-//    self.isAutoPlay         = NO;
-//    if (self.timeObserve) {
-//    [self.player removeTimeObserver:self.timeObserve];
-//    self.timeObserve = nil;
-//    }
-//    // 移除通知
-//    [[NSNotificationCenter defaultCenter] removeObserver:self];
-//    // 暂停
-//    [self pause];
-//    // 移除原来的layer
-//    [self.playerLayer removeFromSuperlayer];
-//    // 替换PlayerItem为nil
-//    [self.player replaceCurrentItemWithPlayerItem:nil];
-//    // 把player置为nil
-//    self.imageGenerator = nil;
-//    self.player         = nil;
-//    if (self.isChangeResolution) { // 切换分辨率
-//    [self.controlView zf_playerResetControlViewForResolution];
-//    self.isChangeResolution = NO;
-//    }else { // 重置控制层View
-//    [self.controlView zf_playerResetControlView];
-//    }
-//    self.controlView   = nil;
-//    // 非重播时，移除当前playerView
-//    if (!self.repeatToPlay) { [self removeFromSuperview]; }
-//    // 底部播放video改为NO
-//    self.isBottomVideo = NO;
-//    // cell上播放视频 && 不是重播时
-//    if (self.isCellVideo && !self.repeatToPlay) {
-//    // vicontroller中页面消失
-//    self.viewDisappear = YES;
-//    self.isCellVideo   = NO;
-//    self.tableView     = nil;
-//    self.indexPath     = nil;
-//    }
-//    }
 }
 
 //MARK: - DLMPlayerControlViewDelegate代理方法
@@ -899,15 +999,8 @@ extension DLMPlayerView : DLMPlayerControlViewDelegate {
             self.interfaceOrientation(orientation: .portrait)
         }
     }
-    
-    func dlm_controlViewCloseAction(controlView: DLMPlayerControlView, btn: UIButton) {
-        
-    }
     func dlm_controlViewFullScreenAction(controlView: DLMPlayerControlView, btn: UIButton) {
-        
-    }
-    func dlm_controlViewLockScreenAction(controlView: DLMPlayerControlView, btn: UIButton) {
-        
+        self._fullScreenAction()
     }
     func dlm_controlViewCenterPlayAction(controlView: DLMPlayerControlView, btn: UIButton) {
         
@@ -969,9 +1062,9 @@ extension DLMPlayerView : DLMPlayerControlViewDelegate {
             
             if totalTime > 0 {
                 // 当总时长 > 0时候才能拖动slider
-                if self.isFullScreen && self.hasPreviewView {
-                    
-                }
+//                if self.isFullScreen && self.hasPreviewView {
+//                    
+//                }
             }else {
                 // 此时设置slider值为0
                 slider.value = 0;
@@ -995,10 +1088,7 @@ extension DLMPlayerView : DLMPlayerControlViewDelegate {
             self.seekToTime(dragedSeconds: Int(dragedSeconds), completionHandler: nil)
         }
     }
-    
 }
-
-//
 protocol DLMPlayerViewDelegate {
     func dlm_playerBackAction()
 }

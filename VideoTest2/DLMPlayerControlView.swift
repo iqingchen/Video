@@ -411,9 +411,6 @@ extension DLMPlayerControlView {
      *  屏幕方向发生变化会调用这里
      */
     func onDeviceOrientationChange() {
-//        if (ZFPlayerShared.isLockScreen) { return; }
-//        self.lockBtn.isHidden = !self.isFullScreen
-//        self.fullScreenBtn.isSelected = self.isFullScreen
         let orientation = UIDevice.current.orientation
         if orientation == .faceUp || orientation == .faceDown || orientation == .unknown || orientation == .portraitUpsideDown {
             return
