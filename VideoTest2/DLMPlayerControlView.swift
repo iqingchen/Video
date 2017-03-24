@@ -190,13 +190,6 @@ class DLMPlayerControlView: UIView {
         placeholderImageV.isUserInteractionEnabled = true
         return placeholderImageV
     }()
-    /** 控制层消失时候在底部显示的播放进度progress */
-    var bottomProgressView : UIProgressView = {
-        let bottomProgressV = UIProgressView()
-        bottomProgressV.progressTintColor = UIColor.white
-        bottomProgressV.trackTintColor = UIColor.clear
-        return bottomProgressV
-    }()
     /** 分辨率的名称 */
     var resolutionArray : [String] = []
     
@@ -290,7 +283,6 @@ extension DLMPlayerControlView {
         
         topImageView.addSubview(resolutionBtn)
         topImageView.addSubview(titleLabel)
-        self.addSubview(bottomProgressView)
     }
     fileprivate func makeSubViewsConstraints() {
         self.layoutIfNeeded()
@@ -395,10 +387,6 @@ extension DLMPlayerControlView {
             make.trailing.equalTo(-12)
             make.top.equalTo(fastTimeLabel.snp.bottom).offset(10)
         }
-        bottomProgressView.snp.makeConstraints { (make) in
-            make.leading.trailing.equalTo(0)
-            make.bottom.equalTo(0)
-            }
     }
     fileprivate func addNotification() {
         // app退到后台
@@ -501,7 +489,6 @@ extension DLMPlayerControlView {
         self.backgroundColor = RGBA(r: 0, g: 0, b: 0, a: 0)
         self.topImageView.alpha = self.playeEnd == true ? 1 : 0
         self.bottomImageView.alpha = 0
-        self.bottomProgressView.alpha = 1
         // 隐藏resolutionView
         resolutionBtn.isSelected = true
         self.resolutionBtnClick(btn: self.resolutionBtn)
@@ -516,7 +503,6 @@ extension DLMPlayerControlView {
 //        if (self.isCellVideo) {
             //    self.shrink                = NO;
             //    }
-        self.bottomProgressView.alpha = 0
 //        ZFPlayerShared.isStatusBarHidden = NO;
     }
     
@@ -658,7 +644,6 @@ extension DLMPlayerControlView {
         hideControlView()
         self.backgroundColor = RGBA(r: 0, g: 0, b: 0, a: 0.3)
 //        ZFPlayerShared.isStatusBarHidden = NO;
-        self.bottomProgressView.alpha = 0
     }
     /** 播放按钮状态 */
     func dlm_playerPlayBtnState(state: Bool) {

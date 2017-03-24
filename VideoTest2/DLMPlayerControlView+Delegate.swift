@@ -27,7 +27,6 @@ extension DLMPlayerControlView {
         if !self.dragged {
             // 更新slider
             self.videoSlider.value = value
-            self.bottomProgressView.progress = value
             // 更新当前播放时间
             let proMins = String(format: "%02zd", proMin)
             let proSecs = String(format: "%02zd", proSec)
@@ -69,8 +68,6 @@ extension DLMPlayerControlView {
 //        self.videoSlider.popUpView.hidden = !preview;
         // 更新slider的值
         self.videoSlider.value            = draggedValue
-        // 更新bottomProgressView的值
-        self.bottomProgressView.progress  = draggedValue
         // 更新当前时间
         self.currentTimeLabel.text        = currentTimeStr
         // 正在拖动控制播放进度
@@ -104,7 +101,6 @@ extension DLMPlayerControlView {
         activity.stopAnimating()
         
         //        self.videoSlider.value           = 0
-        self.bottomProgressView.progress = 0
         self.progressView.progress       = 0
         self.currentTimeLabel.text       = "00:00"
         self.totalTimeLabel.text         = "00:00"
