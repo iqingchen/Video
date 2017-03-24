@@ -233,6 +233,12 @@ extension DLMPlayerView {
             let error = self.playerItem?.error
             self.controlView?.dlm_playerItemStatusFailed(error: error!)
         }
+        
+        if newState == .Pause && isFullScreen && isPauseByUser {
+            self.controlView?.showMaskView()
+        }else {
+            self.controlView?.hiddenMaskView()
+        }
     }
     fileprivate func setNewPlayerItem(newPlayerItem: AVPlayerItem) {
         //根据playerItem，来添加移除观察者
@@ -349,7 +355,38 @@ extension DLMPlayerView {
         
     }
     fileprivate func configureVolume() {
+        let volumeView = MPVolumeView()
+        for view in volumeView.subviews {
+            if let slider = view as? UISlider {
+                self.volumeViewSlider = slider
+                break
+            }
+        }
+        // 使用这个category的应用不会随着手机静音键打开而静音，可在手机静音下播放声音
+        let session = AVAudioSession.sharedInstance()
+        do {
+            try session.setCategory(AVAudioSessionCategoryPlayback)
+        } catch let error as NSError {
+            // handle the error condition
+            
+        }
+        // 监听耳机插入和拔掉通知
+        NotificationCenter.default.addObserver(self, selector: #selector(self.audioRouteChangeListenerCallback(notification:)), name: NSNotification.Name.AVAudioSessionRouteChange, object: nil)
         
+    }
+    //耳机插入、拔出事件
+    func audioRouteChangeListenerCallback(notification: Notification) {
+        let interuptionDict = notification.userInfo
+        let routeChangeReason = interuptionDict?[AVAudioSessionRouteChangeReasonKey] as! AVAudioSessionRouteChangeReason
+        if routeChangeReason == AVAudioSessionRouteChangeReason.newDeviceAvailable {
+            // 耳机插入
+        }else if routeChangeReason == AVAudioSessionRouteChangeReason.oldDeviceUnavailable {
+            // 耳机拔掉
+            // 拔掉耳机继续播放
+            self.play()
+        }else if routeChangeReason == AVAudioSessionRouteChangeReason.categoryChange {
+            print("--------AVAudioSessionRouteChangeReasonCategoryChange")
+        }
     }
     
     /**
@@ -445,7 +482,7 @@ extension DLMPlayerView {
         UIView.commitAnimations()
         self.controlView?.layoutIfNeeded()
         self.controlView?.setNeedsLayout()
-        UIApplication.shared.isStatusBarHidden = true
+//        UIApplication.shared.isStatusBarHidden = true
         
         self.isFullScreen = true
     }
@@ -460,10 +497,6 @@ extension DLMPlayerView {
         NotificationCenter.default.addObserver(self, selector:#selector(self.appDidEnterBackground), name: NSNotification.Name.UIApplicationWillResignActive, object: nil)
          // app进入前台
         NotificationCenter.default.addObserver(self, selector:#selector(self.appDidEnterPlayground), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
-         // 监测设备方向
-        UIDevice.current.beginGeneratingDeviceOrientationNotifications()
-        NotificationCenter.default.addObserver(self, selector:#selector(self.onDeviceOrientationChange), name: NSNotification.Name.UIDeviceOrientationDidChange, object: nil)
-        NotificationCenter.default.addObserver(self, selector:#selector(self.onStatusBarOrientationChange), name: NSNotification.Name.UIApplicationDidChangeStatusBarFrame, object: nil)
     }
 }
 
@@ -996,7 +1029,7 @@ extension DLMPlayerView : DLMPlayerControlViewDelegate {
             self.pause()
             delegate?.dlm_playerBackAction()
         }else {
-            self.interfaceOrientation(orientation: .portrait)
+            self.setVideoOrientationPortraitConstraint()
         }
     }
     func dlm_controlViewFullScreenAction(controlView: DLMPlayerControlView, btn: UIButton) {
@@ -1052,6 +1085,7 @@ extension DLMPlayerView : DLMPlayerControlViewDelegate {
                 return
             }
             self.sliderLastValue = slider.value
+            
             let totalTime = Int(item.duration.value) / Int(item.duration.timescale)
             
             ////计算出拖动的当前秒数

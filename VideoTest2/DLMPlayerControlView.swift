@@ -213,6 +213,12 @@ class DLMPlayerControlView: UIView {
     /** 是否全屏播放 */
     var isFullScreen : Bool!
     
+    lazy var maskShareView : UIView = {
+        let maskV = UIView()
+        maskV.backgroundColor = UIColor.red
+        return maskV
+    }()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setUpUI()
@@ -396,8 +402,10 @@ extension DLMPlayerControlView {
     }
     fileprivate func addNotification() {
         // app退到后台
+//        NotificationCenter.default.addObserver(self, selector: #selector(self.appDidEnterBackground), name: NSNotification.Name.UIApplicationWillResignActiveNotification, object: nil)
         //        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidEnterBackground) name:UIApplicationWillResignActiveNotification object:nil];
         // app进入前台
+//        NotificationCenter.default.addObserver(self, selector: #selector(self.appDidEnterPlayground), name: NSNotification.Name.UIApplicationDidBecomeActiveNotification, object: nil)
         //        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidEnterPlayground) name:UIApplicationDidBecomeActiveNotification object:nil];
     }
     /**
@@ -571,6 +579,20 @@ extension DLMPlayerControlView : UIGestureRecognizerDelegate {
 
 //MARK: - 暴露给外界的方法
 extension DLMPlayerControlView {
+    //显示分享UIView
+    func showMaskView() {
+        self.addSubview(maskShareView)
+        maskShareView.snp.makeConstraints { (make) in
+            make.height.width.equalTo(50)
+            make.center.equalTo(self)
+        }
+    }
+    
+    //隐藏分享UIView
+    func hiddenMaskView() {
+        maskShareView.removeFromSuperview()
+    }
+    
     /**  取消延时隐藏controlView的方法*/
     func dlm_playerCancelAutoFadeOutControlView() {
         self.isShowing = false

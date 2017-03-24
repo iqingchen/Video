@@ -56,10 +56,10 @@ extension DLMPlayerControlView {
         let durMin = totalTime / 60 //总秒
         let durSec = Int(totalTime) % 60 //总分钟
         
-        let proMins = String(format: "%02zd", proMin)
+        let proMins = String(format: "%02zd", Int(proMin))
         let proSecs = String(format: "%02zd", proSec)
         let currentTimeStr = "\(proMins):\(proSecs)"
-        let durMins = String(format: "%02zd", durMin)
+        let durMins = String(format: "%02zd", Int(durMin))
         let durSecs = String(format: "%02zd", durSec)
         let totalTimeStr = "\(durMins):\(durSecs)"
         let draggedValue = draggedTime / totalTime

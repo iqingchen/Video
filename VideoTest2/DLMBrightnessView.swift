@@ -30,7 +30,6 @@ final class DLMBrightnessView: UIView {
     static let sharedBrightnessView = DLMBrightnessView()
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
     }
     
     required init?(coder aDecoder: NSCoder) {

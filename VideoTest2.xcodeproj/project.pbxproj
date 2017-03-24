@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1F4C160C1E8504CD0041A809 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F4C160B1E8504CD0041A809 /* AVFoundation.framework */; };
 		1F9FE8651E7F99410019C772 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F9FE8641E7F99410019C772 /* AppDelegate.swift */; };
 		1F9FE8671E7F99410019C772 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F9FE8661E7F99410019C772 /* ViewController.swift */; };
 		1F9FE86A1E7F99410019C772 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1F9FE8681E7F99410019C772 /* Main.storyboard */; };
@@ -82,6 +83,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1F4C160B1E8504CD0041A809 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		1F9FE8611E7F99410019C772 /* VideoTest2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VideoTest2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1F9FE8641E7F99410019C772 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1F9FE8661E7F99410019C772 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -152,6 +154,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1F4C160C1E8504CD0041A809 /* AVFoundation.framework in Frameworks */,
 				1F9FE9C61E7FF45B0019C772 /* MediaPlayer.framework in Frameworks */,
 				6D27338B9C61798AAE0B37B7 /* Pods_VideoTest2.framework in Frameworks */,
 			);
@@ -292,6 +295,7 @@
 		2D0418B701136D022948D4B9 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1F4C160B1E8504CD0041A809 /* AVFoundation.framework */,
 				1F9FE9C51E7FF45B0019C772 /* MediaPlayer.framework */,
 				BD80BFCD085DD3513C1E0D92 /* Pods_VideoTest2.framework */,
 			);
@@ -378,6 +382,7 @@
 				TargetAttributes = {
 					1F9FE8601E7F99410019C772 = {
 						CreatedOnToolsVersion = 8.2.1;
+						DevelopmentTeam = 72MCU9UMBF;
 						ProvisioningStyle = Automatic;
 					};
 					1F9FE8741E7F99420019C772 = {
@@ -692,9 +697,10 @@
 			baseConfigurationReference = 4288AD777495501E9C9CCCCC /* Pods-VideoTest2.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 72MCU9UMBF;
 				INFOPLIST_FILE = VideoTest2/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.zhang.VideoTest2;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.harsom.dilemu-dev";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
 			};
@@ -705,9 +711,10 @@
 			baseConfigurationReference = 29D4E186EDB8296C1D05F763 /* Pods-VideoTest2.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 72MCU9UMBF;
 				INFOPLIST_FILE = VideoTest2/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.zhang.VideoTest2;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.harsom.dilemu-dev";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
 			};
