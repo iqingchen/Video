@@ -48,8 +48,8 @@ class DLMPlayerControlView: UIView {
     /** 缓冲进度条 */
     var progressView : UIProgressView = {
         let progressView = UIProgressView(progressViewStyle: .default)
-        progressView.progressTintColor = RGBA(r: 1, g: 1, b: 1, a: 0.5)
-        progressView.trackTintColor = UIColor.clear
+        progressView.tintColor = UIColorFromRGB("#606060")
+        progressView.trackTintColor = UIColorFromRGB("#1a1a1a")
         return progressView
     }()
     /** 滑杆 */
@@ -364,7 +364,7 @@ extension DLMPlayerControlView {
         progressView.snp.makeConstraints { (make) in
             make.leading.equalTo(currentTimeLabel.snp.trailing).offset(4)
             make.trailing.equalTo(totalTimeLabel.snp.leading).offset(-4)
-            make.centerY.equalTo(startBtn.snp.centerY)
+            make.centerY.equalTo(startBtn.snp.centerY).offset(-1)
         }
         videoSlider.snp.makeConstraints { (make) in
             make.leading.equalTo(currentTimeLabel.snp.trailing).offset(4)
