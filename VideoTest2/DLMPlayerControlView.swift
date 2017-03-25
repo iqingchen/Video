@@ -390,11 +390,9 @@ extension DLMPlayerControlView {
     }
     fileprivate func addNotification() {
         // app退到后台
-//        NotificationCenter.default.addObserver(self, selector: #selector(self.appDidEnterBackground), name: NSNotification.Name.UIApplicationWillResignActiveNotification, object: nil)
-        //        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidEnterBackground) name:UIApplicationWillResignActiveNotification object:nil];
+        NotificationCenter.default.addObserver(self, selector: #selector(self.appDidEnterBackground), name: NSNotification.Name.UIApplicationWillResignActive, object: nil)
         // app进入前台
-//        NotificationCenter.default.addObserver(self, selector: #selector(self.appDidEnterPlayground), name: NSNotification.Name.UIApplicationDidBecomeActiveNotification, object: nil)
-        //        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidEnterPlayground) name:UIApplicationDidBecomeActiveNotification object:nil];
+        NotificationCenter.default.addObserver(self, selector: #selector(self.appDidEnterPlayground), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
     }
     /**
      *  监听设备旋转通知
@@ -509,6 +507,16 @@ extension DLMPlayerControlView {
     func autoFadeOutControlView() {
         NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(self.dlm_playerHideControlView), object: nil)
         self.perform(#selector(self.dlm_playerHideControlView), with: nil, afterDelay: TimeInterval(DLMPlayerAnimationTimeInterval))
+    }
+    //应用退到后台
+    @objc fileprivate func appDidEnterBackground() {
+        self.dlm_playerCancelAutoFadeOutControlView()
+    }
+    //应用进入前台
+    @objc fileprivate func appDidEnterPlayground() {
+        if !self.isShrink {
+            self.dlm_playerShowControlView()
+        }
     }
     
     //关于slider
